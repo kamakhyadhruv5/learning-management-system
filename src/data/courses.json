@@ -3,72 +3,139 @@
     "id": 1,
     "title": "React Fundamentals",
     "category": "Web Development",
-    "instructor": "John Doe",
-    "description": "Learn React fundamentals including components, props, state and hooks.",
+    "instructor": "Rahul Sharma",
     "level": "Beginner",
+    "description": "Learn the fundamentals of React including components, props, state, hooks and building modern user interfaces.",
     "lessons": [
       "Introduction to React",
-      "Components",
-      "Props and State",
-      "React Hooks"
+      "Components and JSX",
+      "Props",
+      "State",
+      "Event Handling",
+      "useState Hook",
+      "useEffect Hook"
     ],
     "materials": [
-      "React Notes",
-      "Practice Questions"
-    ]
+      "React Fundamentals Notes",
+      "React Practice Questions",
+      "React Mini Project Guide"
+    ],
+    "youtube": "https://www.youtube.com/results?search_query=react+js+complete+tutorial"
   },
   {
     "id": 2,
     "title": "Java Programming",
     "category": "Programming",
-    "instructor": "Jane Smith",
-    "description": "Learn Java programming from basics to object-oriented programming.",
+    "instructor": "Amit Verma",
     "level": "Beginner",
+    "description": "Learn Java programming from basics including variables, loops, methods, arrays and object oriented programming.",
     "lessons": [
-      "Java Introduction",
+      "Introduction to Java",
       "Variables and Data Types",
+      "Conditional Statements",
       "Loops",
+      "Methods",
+      "Arrays",
       "Object Oriented Programming"
     ],
     "materials": [
-      "Java Notes",
-      "Java Practice Problems"
-    ]
+      "Java Programming Notes",
+      "Java Practice Problems",
+      "OOP Concepts Guide"
+    ],
+    "youtube": "https://www.youtube.com/results?search_query=java+complete+tutorial+for+beginners"
   },
   {
     "id": 3,
     "title": "Data Structures and Algorithms",
     "category": "DSA",
-    "instructor": "Alex Roy",
-    "description": "Learn important data structures and problem solving techniques.",
+    "instructor": "Neha Singh",
     "level": "Intermediate",
+    "description": "Learn important data structures and algorithms required for coding interviews and competitive programming.",
     "lessons": [
       "Arrays",
+      "Strings",
       "Linked Lists",
       "Stacks and Queues",
-      "Trees"
+      "Hashing",
+      "Trees",
+      "Graphs",
+      "Dynamic Programming"
     ],
     "materials": [
       "DSA Notes",
-      "Practice Sheet"
-    ]
+      "DSA Practice Sheet",
+      "Interview Questions"
+    ],
+    "youtube": "https://www.youtube.com/results?search_query=data+structures+and+algorithms+complete+course"
   },
   {
     "id": 4,
-    "title": "Database Management",
+    "title": "Database Management Systems",
     "category": "Database",
-    "instructor": "Sarah Lee",
-    "description": "Learn database fundamentals and SQL.",
+    "instructor": "Priya Gupta",
     "level": "Intermediate",
+    "description": "Understand database concepts including SQL, normalization, transactions, indexing and relational database design.",
     "lessons": [
-      "Database Introduction",
+      "Introduction to DBMS",
+      "ER Model",
+      "Relational Model",
       "SQL Basics",
       "Normalization",
-      "Transactions"
+      "Transactions",
+      "Indexing"
     ],
     "materials": [
-      "DBMS Notes",
-      "SQL Practice"
-    ]
+      "DBMS Complete Notes",
+      "SQL Practice Questions",
+      "Normalization Practice"
+    ],
+    "youtube": "https://www.youtube.com/results?search_query=dbms+complete+course"
+  },
+  {
+    "id": 5,
+    "title": "JavaScript Essentials",
+    "category": "Web Development",
+    "instructor": "Arjun Mehta",
+    "level": "Beginner",
+    "description": "Master JavaScript fundamentals including functions, arrays, objects, DOM manipulation and asynchronous JavaScript.",
+    "lessons": [
+      "JavaScript Introduction",
+      "Variables and Data Types",
+      "Functions",
+      "Arrays",
+      "Objects",
+      "DOM Manipulation",
+      "Promises and Async Await"
+    ],
+    "materials": [
+      "JavaScript Notes",
+      "DOM Practice Guide",
+      "JavaScript Practice Questions"
+    ],
+    "youtube": "https://www.youtube.com/results?search_query=javascript+complete+tutorial+for+beginners"
+  },
+  {
+    "id": 6,
+    "title": "Python Programming",
+    "category": "Programming",
+    "instructor": "Karan Patel",
+    "level": "Beginner",
+    "description": "Learn Python programming from scratch including syntax, loops, functions, collections and object oriented programming.",
+    "lessons": [
+      "Introduction to Python",
+      "Variables and Data Types",
+      "Conditional Statements",
+      "Loops",
+      "Functions",
+      "Lists and Dictionaries",
+      "Object Oriented Programming"
+    ],
+    "materials": [
+      "Python Programming Notes",
+      "Python Practice Problems",
+      "Python Mini Project Guide"
+    ],
+    "youtube": "https://www.youtube.com/results?search_query=python+complete+tutorial+for+beginners"
   }
 ]
