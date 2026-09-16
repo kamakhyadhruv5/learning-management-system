@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "title": "React Fundamentals",
+    "category": "Web Development",
+    "instructor": "John Doe",
+    "description": "Learn React fundamentals including components, props, state and hooks.",
+    "level": "Beginner",
+    "lessons": [
+      "Introduction to React",
+      "Components",
+      "Props and State",
+      "React Hooks"
+    ],
+    "materials": [
+      "React Notes",
+      "Practice Questions"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Java Programming",
+    "category": "Programming",
+    "instructor": "Jane Smith",
+    "description": "Learn Java programming from basics to object-oriented programming.",
+    "level": "Beginner",
+    "lessons": [
+      "Java Introduction",
+      "Variables and Data Types",
+      "Loops",
+      "Object Oriented Programming"
+    ],
+    "materials": [
+      "Java Notes",
+      "Java Practice Problems"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Data Structures and Algorithms",
+    "category": "DSA",
+    "instructor": "Alex Roy",
+    "description": "Learn important data structures and problem solving techniques.",
+    "level": "Intermediate",
+    "lessons": [
+      "Arrays",
+      "Linked Lists",
+      "Stacks and Queues",
+      "Trees"
+    ],
+    "materials": [
+      "DSA Notes",
+      "Practice Sheet"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Database Management",
+    "category": "Database",
+    "instructor": "Sarah Lee",
+    "description": "Learn database fundamentals and SQL.",
+    "level": "Intermediate",
+    "lessons": [
+      "Database Introduction",
+      "SQL Basics",
+      "Normalization",
+      "Transactions"
+    ],
+    "materials": [
+      "DBMS Notes",
+      "SQL Practice"
+    ]
+  }
+]
