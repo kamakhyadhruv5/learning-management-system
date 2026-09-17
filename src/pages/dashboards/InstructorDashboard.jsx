@@ -5,11 +5,13 @@ import InstructorHeader from '../../components/instructor/InstructorHeader';
 import InstructorCourseCard from '../../components/instructor/InstructorCourseCard';
 import EnrollmentChart from '../../components/instructor/EnrollmentChart';
 import StatCard from '../../components/student/StatCard';
+import { getStoredCourses } from '../../data/courseStorage';
 
 export default function InstructorDashboard() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [instructorName, setInstructorName] = useState('Instructor');
+  const [instructorCourses, setInstructorCourses] = useState([]);
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -24,34 +26,15 @@ export default function InstructorDashboard() {
         }
       } catch (e) {}
     }
-  }, []);
 
-  const instructorCourses = [
-    {
-      id: 'web-dev',
-      title: 'Web Development (Full Stack)',
-      studentsCount: 34,
-      lessonsCount: 12,
-      status: 'Published',
-      image: 'https://images.unsplash.com/photo-1593720213428-28a5b9e94613?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-      id: 'data-structures',
-      title: 'Data Structures',
-      studentsCount: 28,
-      lessonsCount: 10,
-      status: 'Published',
-      image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=600&auto=format&fit=crop',
-    },
-    {
-      id: 'cloud-computing',
-      title: 'Cloud Computing',
-      studentsCount: 21,
-      lessonsCount: 8,
-      status: 'Draft',
-      image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=600&auto=format&fit=crop',
-    },
-  ];
+    const loadCourses = () => {
+      setInstructorCourses(getStoredCourses());
+    };
+
+    loadCourses();
+    window.addEventListener('instructor_courses_updated', loadCourses);
+    return () => window.removeEventListener('instructor_courses_updated', loadCourses);
+  }, []);
 
   const recentActivities = [
     {
@@ -124,9 +107,19 @@ export default function InstructorDashboard() {
       ),
     },
     {
+      title: 'My Courses',
+      desc: 'View all your courses',
+      path: '/instructor/courses',
+      icon: (
+        <svg className="w-5 h-5 text-[#4DE2BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      ),
+    },
+    {
       title: 'View Students',
       desc: 'See enrolled students',
-      path: '/instructor/courses/manage',
+      path: '/instructor/courses',
       icon: (
         <svg className="w-5 h-5 text-[#4DE2BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -140,16 +133,6 @@ export default function InstructorDashboard() {
       icon: (
         <svg className="w-5 h-5 text-[#4DE2BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      ),
-    },
-    {
-      title: 'Manage Courses',
-      desc: 'Edit or update your courses',
-      path: '/instructor/courses/manage',
-      icon: (
-        <svg className="w-5 h-5 text-[#4DE2BD]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
         </svg>
       ),
     },
@@ -279,7 +262,7 @@ export default function InstructorDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               }
-              value="4"
+              value={instructorCourses.length}
               label="Total Courses"
             />
             <StatCard
@@ -288,7 +271,7 @@ export default function InstructorDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               }
-              value="128"
+              value={instructorCourses.reduce((acc, c) => acc + (Number(c.studentsCount) || 0), 0)}
               label="Total Students"
             />
             <StatCard
@@ -297,7 +280,7 @@ export default function InstructorDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               }
-              value="3"
+              value={instructorCourses.filter((c) => c.status === 'Published').length}
               label="Active Courses"
             />
             <StatCard
@@ -326,7 +309,7 @@ export default function InstructorDashboard() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {instructorCourses.map((course) => (
+                {instructorCourses.slice(0, 3).map((course) => (
                   <InstructorCourseCard key={course.id} course={course} />
                 ))}
               </div>
@@ -338,7 +321,7 @@ export default function InstructorDashboard() {
                   Recent Activity
                 </h3>
                 <button
-                  onClick={() => navigate('/instructor/courses/manage')}
+                  onClick={() => navigate('/instructor/courses')}
                   className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
                 >
                   View All →
@@ -410,7 +393,7 @@ export default function InstructorDashboard() {
                   Upcoming Tasks
                 </h3>
                 <button
-                  onClick={() => navigate('/instructor/courses/manage')}
+                  onClick={() => navigate('/instructor/courses')}
                   className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
                 >
                   View All →

@@ -9,6 +9,8 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
 import InstructorDashboard from './pages/dashboards/InstructorDashboard';
+import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
+import InstructorAddCoursePage from './pages/instructor/InstructorAddCoursePage';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 
 export default function App() {
@@ -28,6 +30,9 @@ export default function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
 
         <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
+        <Route path="/instructor/courses" element={<InstructorCoursesPage />} />
+        <Route path="/instructor/courses/add" element={<InstructorAddCoursePage />} />
+        <Route path="/instructor/courses/manage" element={<Navigate to="/instructor/courses" replace />} />
 
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
 

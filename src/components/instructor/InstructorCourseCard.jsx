@@ -48,7 +48,7 @@ export default function InstructorCourseCard({ course }) {
         </span>
 
         <button
-          onClick={() => navigate('/instructor/courses/manage')}
+          onClick={() => navigate('/instructor/courses')}
           aria-label="Course options"
           className="text-[#A9C0C7] hover:text-white p-1 rounded-lg hover:bg-[#14323A] transition-colors"
         >

@@ -102,7 +102,7 @@ export default function InstructorSidebar({ mobileOpen, setMobileOpen, instructo
 
         <div className="p-4 border-t border-[#1D363E]">
           <div
-            onClick={() => navigate('/instructor/courses/manage')}
+            onClick={() => navigate('/instructor/courses')}
             className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#0D2229] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3">
