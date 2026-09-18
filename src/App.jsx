@@ -8,6 +8,9 @@ import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import StudentDashboard from './pages/dashboards/StudentDashboard';
+import StudentMyCourses from './pages/dashboards/StudentMyCourses';
+import StudentBrowseCourses from './pages/dashboards/StudentBrowseCourses';
+import StudentMyProgress from './pages/dashboards/StudentMyProgress';
 import InstructorDashboard from './pages/dashboards/InstructorDashboard';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 
@@ -26,6 +29,9 @@ export default function App() {
         <Route path="/signup" element={<SignUpPage />} />
 
         <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/student/courses" element={<StudentMyCourses />} />
+        <Route path="/student/browse" element={<StudentBrowseCourses />} />
+        <Route path="/student/progress" element={<StudentMyProgress />} />
 
         <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
 
