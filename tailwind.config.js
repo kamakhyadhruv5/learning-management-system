@@ -1,7 +1,7 @@
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
@@ -25,8 +25,8 @@ export default {
       boxShadow: {
         'glow-brand': '0 0 25px -4px rgba(77, 226, 189, 0.45)',
         'glow-card': '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
-      }
+      },
     },
   },
   plugins: [],
-}
+};

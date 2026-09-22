@@ -15,6 +15,8 @@ import InstructorDashboard from './pages/dashboards/InstructorDashboard';
 import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
 import InstructorAddCoursePage from './pages/instructor/InstructorAddCoursePage';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
+import AdminManageUsers from './pages/admin/AdminManageUsers';
+import AdminManageCourses from './pages/admin/AdminManageCourses';
 
 export default function App() {
   return (
@@ -41,6 +43,8 @@ export default function App() {
         <Route path="/instructor/courses/manage" element={<Navigate to="/instructor/courses" replace />} />
 
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminManageUsers />} />
+        <Route path="/admin/courses" element={<AdminManageCourses />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
