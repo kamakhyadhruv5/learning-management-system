@@ -73,6 +73,15 @@ export default function InstructorAddCoursePage() {
       return;
     }
 
+    let instructorId = '';
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        instructorId = user.id || '';
+      }
+    } catch (_) {}
+
     const newCourse = addStoredCourse({
       title: title.trim(),
       category,
@@ -82,6 +91,8 @@ export default function InstructorAddCoursePage() {
       lessonsCount: Number(lessonsCount),
       status,
       image: imageUrl.trim(),
+      instructor: instructorName,
+      instructorId,
     });
 
     setCreatedCourse(newCourse);

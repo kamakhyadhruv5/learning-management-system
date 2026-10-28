@@ -321,10 +321,17 @@ export default function InstructorCoursesPage() {
                     </div>
                   </div>
 
-                  <div className="p-5 pt-0 flex items-center justify-between">
-                    <span className="text-xs text-[#A9C0C7]">
-                      {course.duration || '10 hours'}
-                    </span>
+                  <div className="p-5 pt-0 flex items-center justify-between gap-2">
+                    <button
+                      onClick={() => navigate(`/instructor/courses/edit/${course.id}`)}
+                      title="Edit course"
+                      className="flex items-center gap-1.5 text-xs font-bold py-2 px-3.5 rounded-xl border bg-[#07181E] text-[#A9C0C7] border-[#1D363E] hover:text-[#4DE2BD] hover:border-[#4DE2BD]/40 hover:bg-[#10272F] transition-all"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      <span>Edit</span>
+                    </button>
 
                     <button
                       onClick={() => handleToggleStatus(course)}
