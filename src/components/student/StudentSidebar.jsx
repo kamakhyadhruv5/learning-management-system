@@ -1,10 +1,9 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Logo from '../Logo';
 
 export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const menuItems = [
     {
@@ -27,7 +26,7 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
     },
     {
       label: 'Browse Courses',
-      path: '/courses',
+      path: '/student/browse',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -46,6 +45,7 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
     {
       label: 'Quizzes',
       path: '/student/quizzes',
+      available: false,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -55,6 +55,7 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
     {
       label: 'Certificates',
       path: '/student/certificates',
+      available: false,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
@@ -64,6 +65,7 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
     {
       label: 'Messages',
       path: '/student/messages',
+      available: false,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -73,6 +75,7 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
     {
       label: 'Settings',
       path: '/student/settings',
+      available: false,
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -116,16 +119,22 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
           <nav className="p-4 space-y-1.5">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path;
+              const className = `flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                item.available === false
+                  ? 'text-[#A9C0C7]/45 cursor-not-allowed'
+                  : isActive
+                    ? 'bg-[#123835] text-[#4DE2BD] shadow-sm'
+                    : 'text-[#A9C0C7] hover:bg-[#0D2229] hover:text-white'
+              }`;
+              if (item.available === false) {
+                return <div key={item.label} title="Available in a future milestone" aria-disabled="true" className={className}><span className="text-[#A9C0C7]/45">{item.icon}</span><span>{item.label}</span></div>;
+              }
               return (
                 <Link
                   key={item.label}
                   to={item.path}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    isActive
-                      ? 'bg-[#123835] text-[#4DE2BD] shadow-sm'
-                      : 'text-[#A9C0C7] hover:bg-[#0D2229] hover:text-white'
-                  }`}
+                  className={className}
                 >
                   <span className={isActive ? 'text-[#4DE2BD]' : 'text-[#A9C0C7]'}>
                     {item.icon}
@@ -139,8 +148,8 @@ export default function StudentSidebar({ mobileOpen, setMobileOpen, studentName 
 
         <div className="p-4 border-t border-[#1D363E]">
           <div
-            onClick={() => navigate('/student/settings')}
-            className="flex items-center justify-between p-2.5 rounded-xl hover:bg-[#0D2229] transition-colors cursor-pointer"
+            title="Settings are available in a future milestone"
+            className="flex items-center justify-between p-2.5 rounded-xl opacity-60 cursor-not-allowed"
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-[#fbcfe8] text-[#831843] font-bold flex items-center justify-center text-sm shadow-sm">

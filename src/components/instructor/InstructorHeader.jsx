@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearCurrentSession } from '../../data/authStorage';
 
 export default function InstructorHeader({ setMobileOpen, instructorName }) {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function InstructorHeader({ setMobileOpen, instructorName }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    clearCurrentSession();
     navigate('/login');
   };
 
@@ -62,7 +63,7 @@ export default function InstructorHeader({ setMobileOpen, instructorName }) {
 
       <div className="flex items-center space-x-6">
         <button
-          onClick={() => navigate('/instructor/courses/manage')}
+          onClick={() => navigate('/instructor/courses')}
           className="relative text-[#A9C0C7] hover:text-white p-2 transition-colors focus:outline-none"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

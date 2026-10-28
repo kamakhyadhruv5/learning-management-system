@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
 
@@ -12,16 +11,16 @@ export default function Footer() {
       </div>
 
       <nav className="flex items-center space-x-10 text-[14px] font-medium text-[#A9C0C7]">
-        <Link to="/#home" className="hover:text-white transition-colors">
+        <Link to="/" className="hover:text-white transition-colors">
           Home
         </Link>
-        <Link to="/#features" className="hover:text-white transition-colors">
+        <Link to="/courses" className="hover:text-white transition-colors">
           Courses
         </Link>
-        <Link to="/#features" className="hover:text-white transition-colors">
+        <Link to="/about" className="hover:text-white transition-colors">
           About
         </Link>
-        <Link to="/#footer" className="hover:text-white transition-colors">
+        <Link to="/contact" className="hover:text-white transition-colors">
           Contact
         </Link>
       </nav>

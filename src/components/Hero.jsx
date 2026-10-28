@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroIllustration from './HeroIllustration';
 
@@ -22,7 +21,7 @@ export default function Hero() {
 
         <div className="flex flex-wrap items-center gap-4 mb-8">
           <button
-            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => navigate('/courses')}
             className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-[15px] px-7 py-3 rounded-full flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-glow-brand transform hover:translate-y-[-1px] active:translate-y-[0px]"
           >
             <span>Explore Courses</span>

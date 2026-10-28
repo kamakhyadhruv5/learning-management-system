@@ -173,8 +173,8 @@ export default function AdminDashboard() {
   const quickActions = [
     { label: 'Add New User', icon: '👤', path: '/admin/users', color: '#4DE2BD' },
     { label: 'Add New Course', icon: '📚', path: '/admin/courses', color: '#38BDF8' },
-    { label: 'View Reports', icon: '📊', path: '/admin/reports', color: '#A855F7' },
-    { label: 'Settings', icon: '⚙️', path: '/admin/settings', color: '#F59E0B' },
+    { label: 'View Reports', icon: '📊', color: '#A855F7', available: false },
+    { label: 'Settings', icon: '⚙️', color: '#F59E0B', available: false },
   ];
 
   return (
@@ -202,8 +202,10 @@ export default function AdminDashboard() {
               </p>
             </div>
             <button
-              onClick={() => navigate('/admin/reports')}
-              className="flex-shrink-0 bg-[#4DE2BD] text-[#07181E] font-bold text-sm px-6 py-3 rounded-xl hover:bg-[#3ac9a8] transition-all relative z-10"
+              type="button"
+              disabled
+              title="Reports are available in a future milestone"
+              className="flex-shrink-0 bg-[#4DE2BD]/50 text-[#07181E]/70 font-bold text-sm px-6 py-3 rounded-xl cursor-not-allowed relative z-10"
             >
               View Reports
             </button>
@@ -308,8 +310,11 @@ export default function AdminDashboard() {
                 {quickActions.map((action) => (
                   <button
                     key={action.label}
-                    onClick={() => navigate(action.path)}
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-[#07181E] border border-[#1D363E] hover:border-[#29444C] hover:bg-[#0a1e26] transition-all group"
+                    type="button"
+                    disabled={action.available === false}
+                    title={action.available === false ? 'Available in a future milestone' : undefined}
+                    onClick={() => action.path && navigate(action.path)}
+                    className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-[#07181E] border border-[#1D363E] transition-all group ${action.available === false ? 'opacity-45 cursor-not-allowed' : 'hover:border-[#29444C] hover:bg-[#0a1e26]'}`}
                   >
                     <span className="text-2xl">{action.icon}</span>
                     <span className="text-xs font-semibold text-[#A9C0C7] group-hover:text-white text-center leading-tight">

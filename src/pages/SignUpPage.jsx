@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
+import { DEMO_AUTH_NOTICE, getDashboardPath, registerDemoAccount } from '../data/authStorage';
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function SignUpPage() {
   const [role, setRole] = useState('student');
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
@@ -22,7 +24,7 @@ export default function SignUpPage() {
     }
   }, [searchParams]);
 
-  const handleSignUp = (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
     if (!fullName.trim()) {
@@ -50,17 +52,22 @@ export default function SignUpPage() {
       return;
     }
 
-    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const newUser = { fullName, email, role, createdAt: new Date().toISOString() };
-    localStorage.setItem('registeredUsers', JSON.stringify([...existingUsers, newUser]));
-    localStorage.setItem('currentUser', JSON.stringify({ email, role, fullName }));
-
-    if (role === 'student') {
-      navigate('/student/dashboard');
-    } else if (role === 'instructor') {
-      navigate('/instructor/dashboard');
-    } else {
-      navigate('/admin/dashboard');
+    try {
+      const result = await registerDemoAccount({ fullName, email, password, role });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      localStorage.setItem('currentUser', JSON.stringify({
+        id: result.account.id,
+        email: result.account.email,
+        fullName: result.account.fullName,
+        role: result.account.role,
+      }));
+      setSuccess('Account created successfully. Taking you to your dashboard…');
+      window.setTimeout(() => navigate(getDashboardPath(result.account.role), { replace: true }), 500);
+    } catch (registrationError) {
+      setError(registrationError.message || 'We could not create your account. Please try again.');
     }
   };
 
@@ -90,6 +97,9 @@ export default function SignUpPage() {
             <div className="mb-5 bg-red-950/40 border border-red-500/50 text-red-300 text-xs p-3 rounded-xl">
               {error}
             </div>
+          )}
+          {success && (
+            <div className="mb-5 bg-[#14323A] border border-[#4DE2BD]/40 text-[#B9F6E4] text-xs p-3 rounded-xl">{success}</div>
           )}
 
           <form onSubmit={handleSignUp} className="space-y-4">
@@ -208,6 +218,8 @@ export default function SignUpPage() {
               Create Account
             </button>
           </form>
+
+          <p className="text-[11px] text-[#A9C0C7]/80 leading-relaxed mt-4">{DEMO_AUTH_NOTICE} Passwords are hashed for this demo, but browser storage is not secure for production use.</p>
 
           <div className="text-center text-xs text-[#A9C0C7] mt-6">
             Already have an account?{' '}

@@ -1,42 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
+import { authenticateDemoAccount, getDashboardPath } from '../data/authStorage';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const roleParam = searchParams.get('role');
-    if (roleParam && ['student', 'instructor', 'admin'].includes(roleParam.toLowerCase())) {
-      setRole(roleParam.toLowerCase());
-    }
-  }, [searchParams]);
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please fill in both email and password.');
       return;
     }
 
-    localStorage.setItem('currentUser', JSON.stringify({ email, role, rememberMe }));
-
-    if (role === 'student') {
-      navigate('/student/dashboard');
-    } else if (role === 'instructor') {
-      navigate('/instructor/dashboard');
-    } else {
-      navigate('/admin/dashboard');
+    const result = await authenticateDemoAccount({ email, password, rememberMe });
+    if (!result.ok) {
+      setError(result.error);
+      return;
     }
+
+    navigate(location.state?.from || getDashboardPath(result.session.role), { replace: true });
   };
 
   return (
@@ -156,27 +147,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-white mb-2">
-                Role
-              </label>
-              <div className="relative">
-                <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full bg-[#091B21] border border-[#1D363E] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#4DE2BD] transition-colors appearance-none cursor-pointer"
-                >
-                  <option value="student">Student</option>
-                  <option value="instructor">Instructor</option>
-                  <option value="admin">Administrator</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-[#A9C0C7]">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            <p className="text-xs text-[#A9C0C7] bg-[#091B21] border border-[#1D363E] rounded-xl px-4 py-3">Your dashboard is selected from your registered account.</p>
 
             <div className="flex items-center justify-between text-xs pt-1">
               <label className="flex items-center gap-2 cursor-pointer text-[#A9C0C7]">
@@ -208,7 +179,7 @@ export default function LoginPage() {
 
           <div className="text-center text-xs text-[#A9C0C7] mt-6">
             Don't have an account?{' '}
-            <Link to={`/signup?role=${role}`} className="text-[#4DE2BD] font-bold hover:underline ml-1">
+            <Link to="/signup" className="text-[#4DE2BD] font-bold hover:underline ml-1">
               Sign Up
             </Link>
           </div>
