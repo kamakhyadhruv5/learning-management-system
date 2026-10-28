@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearCurrentSession } from '../../data/authStorage';
 
 export default function InstructorHeader({ setMobileOpen, instructorName }) {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function InstructorHeader({ setMobileOpen, instructorName }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    clearCurrentSession();
     navigate('/login');
   };
 

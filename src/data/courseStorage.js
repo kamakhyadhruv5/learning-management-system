@@ -22,6 +22,7 @@ export const initialInstructorCourses = [
   {
     id: 'web-dev',
     title: 'Web Development (Full Stack)',
+    instructor: 'Dr. Sarah Khan',
     category: 'Web Development',
     studentsCount: 34,
     lessonsCount: 12,
@@ -35,6 +36,7 @@ export const initialInstructorCourses = [
   {
     id: 'data-structures',
     title: 'Data Structures & Algorithms',
+    instructor: 'Prof. Amit Verma',
     category: 'Computer Science',
     studentsCount: 28,
     lessonsCount: 10,
@@ -48,6 +50,7 @@ export const initialInstructorCourses = [
   {
     id: 'cloud-computing',
     title: 'Cloud Computing & DevOps',
+    instructor: 'Dr. Neha Gupta',
     category: 'Cloud & DevOps',
     studentsCount: 21,
     lessonsCount: 8,
@@ -61,6 +64,7 @@ export const initialInstructorCourses = [
   {
     id: 'ui-ux-design',
     title: 'UI/UX Design Masterclass',
+    instructor: 'Marcus Chen',
     category: 'Design',
     studentsCount: 45,
     lessonsCount: 14,
@@ -95,7 +99,9 @@ export function saveStoredCourses(courses) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
     window.dispatchEvent(new Event('instructor_courses_updated'));
-  } catch {}
+  } catch (error) {
+    void error;
+  }
 }
 
 export function addStoredCourse(courseData) {
@@ -104,6 +110,7 @@ export function addStoredCourse(courseData) {
   const newCourse = {
     ...courseData,
     id: newId,
+    instructor: courseData.instructor || 'Staff Instructor',
     studentsCount: Number(courseData.studentsCount) || 0,
     lessonsCount: Number(courseData.lessonsCount) || 1,
     duration: courseData.duration || '10 hours',

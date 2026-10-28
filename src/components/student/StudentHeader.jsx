@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearCurrentSession } from '../../data/authStorage';
 
 export default function StudentHeader({ setMobileOpen, studentName }) {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function StudentHeader({ setMobileOpen, studentName }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('currentUser');
+    clearCurrentSession();
     navigate('/login');
   };
 
@@ -62,8 +63,10 @@ export default function StudentHeader({ setMobileOpen, studentName }) {
 
       <div className="flex items-center space-x-6">
         <button
-          onClick={() => navigate('/student/messages')}
-          className="relative text-[#A9C0C7] hover:text-white p-2 transition-colors focus:outline-none"
+          type="button"
+          disabled
+          title="Messages are available in a future milestone"
+          className="relative text-[#A9C0C7]/45 p-2 cursor-not-allowed focus:outline-none"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -103,11 +106,10 @@ export default function StudentHeader({ setMobileOpen, studentName }) {
                 My Courses
               </button>
               <button
-                onClick={() => {
-                  setDropdownOpen(false);
-                  navigate('/student/settings');
-                }}
-                className="w-full text-left px-4 py-2 text-xs sm:text-sm text-[#A9C0C7] hover:bg-[#14323A] hover:text-[#4DE2BD] transition-colors"
+                type="button"
+                disabled
+                title="Settings are available in a future milestone"
+                className="w-full text-left px-4 py-2 text-xs sm:text-sm text-[#A9C0C7]/45 cursor-not-allowed"
               >
                 Settings
               </button>

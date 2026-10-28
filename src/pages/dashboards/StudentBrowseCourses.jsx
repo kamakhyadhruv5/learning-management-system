@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
-import { coursesData } from '../../data/coursesData';
+import { getCatalogCourses } from '../../data/courseCatalog';
 import { enrolledCourses } from '../../data/studentData';
 
 export default function StudentBrowseCourses() {
@@ -11,6 +11,7 @@ export default function StudentBrowseCourses() {
   const [studentName, setStudentName] = useState('Student');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [courses, setCourses] = useState(() => getCatalogCourses());
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -27,18 +28,24 @@ export default function StudentBrowseCourses() {
     }
   }, []);
 
+  useEffect(() => {
+    const reloadCourses = () => setCourses(getCatalogCourses());
+    window.addEventListener('instructor_courses_updated', reloadCourses);
+    return () => window.removeEventListener('instructor_courses_updated', reloadCourses);
+  }, []);
+
   const enrolledIds = enrolledCourses.map((c) => c.courseId);
 
-  const categories = ['All', ...new Set(coursesData.map((c) => c.category))];
+  const categories = ['All', ...new Set(courses.map((c) => c.category))];
 
-  const filteredCourses = coursesData.filter((course) => {
+  const filteredCourses = courses.filter((course) => {
     const matchesCategory = activeCategory === 'All' || course.category === activeCategory;
     const query = searchQuery.toLowerCase();
     const matchesSearch =
       !query ||
-      course.title.toLowerCase().includes(query) ||
-      course.instructor.toLowerCase().includes(query) ||
-      course.category.toLowerCase().includes(query);
+      course.title?.toLowerCase().includes(query) ||
+      (course.instructor || '').toLowerCase().includes(query) ||
+      course.category?.toLowerCase().includes(query);
     return matchesCategory && matchesSearch;
   });
 
@@ -142,10 +149,10 @@ export default function StudentBrowseCourses() {
 
                         <div className="flex items-center gap-2 mb-5">
                           <div className="w-6 h-6 rounded-full bg-[#14323A] flex items-center justify-center text-[#4DE2BD] text-xs font-bold">
-                            {course.instructor.charAt(0)}
+                            {(course.instructor || '?').charAt(0)}
                           </div>
                           <span className="text-xs text-[#A9C0C7]">
-                            {course.instructor}
+                            {course.instructor || 'Instructor unavailable'}
                           </span>
                         </div>
                       </div>

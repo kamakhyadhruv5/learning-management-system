@@ -1,8 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export default function UpcomingDeadlinesCard() {
-  const navigate = useNavigate();
 
   const deadlines = [
     {
@@ -50,8 +48,10 @@ export default function UpcomingDeadlinesCard() {
           Upcoming Deadlines
         </h3>
         <button
-          onClick={() => navigate('/student/quizzes')}
-          className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
+          type="button"
+          disabled
+          title="Quizzes are available in a future milestone"
+          className="text-xs font-semibold text-[#4DE2BD]/50 cursor-not-allowed flex items-center gap-1"
         >
           View All →
         </button>

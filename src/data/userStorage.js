@@ -1,4 +1,4 @@
-import { adminData } from './adminData';
+import { adminData } from './adminData.js';
 
 const USERS_STORAGE_KEY = 'admin_users';
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
 
@@ -51,7 +51,7 @@ export default function Navbar() {
 
       <div className="hidden sm:flex items-center space-x-7">
         <button
-          onClick={() => navigate('/#features')}
+          onClick={() => navigate('/courses')}
           aria-label="Search"
           className="text-[#A9C0C7] hover:text-white transition-colors p-1.5 focus:outline-none"
         >

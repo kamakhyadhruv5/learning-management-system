@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function CourseCard({ course }) {
@@ -35,10 +34,10 @@ export default function CourseCard({ course }) {
 
           <div className="flex items-center gap-2 mb-5">
             <div className="w-6 h-6 rounded-full bg-[#14323A] flex items-center justify-center text-[#4DE2BD] text-xs font-bold">
-              {course.instructor.charAt(0)}
+              {(course.instructor || '?').charAt(0)}
             </div>
             <span className="text-xs text-[#A9C0C7]">
-              {course.instructor}
+              {course.instructor || 'Instructor unavailable'}
             </span>
           </div>
         </div>
