@@ -1,9 +1,16 @@
+import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getCatalogCourseById } from '../data/courseCatalog';
+import { getCurrentSession } from '../data/authStorage.js';
+import { saveEnrollment } from '../data/enrollmentStorage.js';
+import { useStudentEnrollments } from '../hooks/useStudentEnrollments.js';
 
 export default function CourseDetailsPage() {
   const { id } = useParams();
   const course = getCatalogCourseById(id);
+  const session = getCurrentSession();
+  const { enrollments } = useStudentEnrollments();
+  const [feedback, setFeedback] = useState(null);
 
   if (!course) {
     return (
@@ -17,6 +24,24 @@ export default function CourseDetailsPage() {
       </section>
     );
   }
+
+  const isEnrolled = enrollments?.some((e) => e.courseId === course.id);
+
+  const handleEnroll = () => {
+    if (!session?.email) return;
+    try {
+      const result = saveEnrollment({ studentEmail: session.email, courseId: course.id });
+      if (result.ok) {
+        setFeedback({ type: 'success', message: 'Enrolled successfully!' });
+      } else if (result.reason === 'duplicate') {
+        setFeedback({ type: 'info', message: 'You are already enrolled in this course.' });
+      } else {
+        setFeedback({ type: 'error', message: 'Enrollment failed. Please try again.' });
+      }
+    } catch {
+      setFeedback({ type: 'error', message: 'Enrollment failed. Please try again.' });
+    }
+  };
 
   return (
     <section className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
@@ -39,8 +64,35 @@ export default function CourseDetailsPage() {
             {course.level && <div className="flex justify-between gap-4"><dt className="text-[#A9C0C7]">Level</dt><dd className="text-white font-semibold text-right">{course.level}</dd></div>}
             {course.price && <div className="flex justify-between gap-4"><dt className="text-[#A9C0C7]">Price</dt><dd className="text-[#4DE2BD] font-bold">{course.price}</dd></div>}
           </dl>
+          
+          <div className="mt-6 pt-6 border-t border-[#1D363E]">
+            {feedback && (
+              <div className={`mb-4 p-3 rounded-xl text-xs font-semibold border ${
+                feedback.type === 'success' ? 'bg-[#143C3A] text-[#4DE2BD] border-[#4DE2BD]/30' :
+                feedback.type === 'info' ? 'bg-sky-950/40 text-sky-400 border-sky-400/30' :
+                'bg-rose-950/40 text-rose-400 border-rose-400/30'
+              }`}>
+                {feedback.message}
+              </div>
+            )}
+
+            {!session?.email ? (
+              <Link to="/login" className="block text-center w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md">
+                Login to Enroll
+              </Link>
+            ) : isEnrolled ? (
+              <Link to="/student/courses" className="block text-center w-full bg-[#14323A] hover:bg-[#4DE2BD] hover:text-[#07181E] text-[#4DE2BD] font-bold py-3 px-5 rounded-xl border border-[#1D363E] hover:border-[#4DE2BD] transition-all">
+                Already Enrolled – View My Courses
+              </Link>
+            ) : (
+              <button onClick={handleEnroll} className="w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md">
+                Enroll Now
+              </button>
+            )}
+          </div>
         </aside>
       </div>
+
       {course.syllabus?.length > 0 && (
         <div className="mt-10 bg-[#0D2229]/95 border border-[#1D363E] rounded-2xl p-6 sm:p-8 shadow-lg">
           <h2 className="text-xl font-bold text-white mb-5">Course Syllabus</h2>

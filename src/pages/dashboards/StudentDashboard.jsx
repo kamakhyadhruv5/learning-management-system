@@ -3,15 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
 import StatCard from '../../components/student/StatCard';
-import ContinueLearningCard from '../../components/student/ContinueLearningCard';
 import UpcomingDeadlinesCard from '../../components/student/UpcomingDeadlinesCard';
 import MyCourseCard from '../../components/student/MyCourseCard';
 import RecommendedCourseItem from '../../components/student/RecommendedCourseItem';
+import { useStudentEnrollments } from '../../hooks/useStudentEnrollments';
+import { getCatalogCourses } from '../../data/courseCatalog';
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [studentName, setStudentName] = useState('Student');
+
+  const { enrollments } = useStudentEnrollments();
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -28,65 +31,40 @@ export default function StudentDashboard() {
     }
   }, []);
 
-  const myCourses = [
-    {
-      id: 'web-dev',
-      title: 'Web Development (Full Stack)',
-      instructor: 'Dr. Sarah Khan',
-      progress: 60,
-      progressColor: 'bg-[#4DE2BD]',
-      image: 'https://images.unsplash.com/photo-1593720213428-28a5b9e94613?q=80&w=600&auto=format&fit=crop',
-      link: '/courses/full-stack-web-development',
-    },
-    {
-      id: 'data-structures',
-      title: 'Data Structures',
-      instructor: 'Prof. Amit Verma',
-      progress: 30,
-      progressColor: 'bg-rose-400',
-      image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=600&auto=format&fit=crop',
-      link: '/courses/python-data-science-machine-learning',
-    },
-    {
-      id: 'cloud-computing',
-      title: 'Cloud Computing',
-      instructor: 'Dr. Neha Gupta',
-      progress: 10,
-      progressColor: 'bg-sky-400',
-      image: 'https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?q=80&w=600&auto=format&fit=crop',
-      link: '/courses/cloud-devops-kubernetes',
-    },
-  ];
+  const totalEnrolled = enrollments.length;
+  const completedCount = enrollments.filter((c) => c.status === 'Completed').length;
+  const inProgressCount = enrollments.filter((c) => c.status === 'In Progress').length;
+  const estimatedHours = enrollments.reduce((acc, c) => acc + (c.lessonsCompleted || 0) * 1, 0);
 
-  const recommendedCourses = [
-    {
-      id: 'ml-basics',
-      title: 'Machine Learning Basics',
-      instructor: 'Prof. Rohit Mehta',
-      rating: '4.8',
-      students: '12K students',
-      image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?q=80&w=200&auto=format&fit=crop',
-      link: '/courses/ai-llm-application-engineering',
-    },
-    {
-      id: 'ui-ux',
-      title: 'UI/UX Design',
-      instructor: 'Ananya Desai',
-      rating: '4.6',
-      students: '8K students',
-      image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=200&auto=format&fit=crop',
-      link: '/courses/ui-ux-design-masterclass',
-    },
-    {
-      id: 'cybersecurity',
-      title: 'Cybersecurity Fundamentals',
-      instructor: 'Dr. Karan Singh',
-      rating: '4.7',
-      students: '10K students',
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=200&auto=format&fit=crop',
-      link: '/courses/cloud-devops-kubernetes',
-    },
-  ];
+  // Active / continue learning course: find first In Progress or Not Started course, or fallback to first enrolled
+  const activeCourse = enrollments.find((c) => c.status === 'In Progress') || enrollments[0];
+
+  // My courses preview: first 3 enrolled courses mapped to format expected by MyCourseCard
+  const displayMyCourses = enrollments.slice(0, 3).map((e) => ({
+    id: e.courseId,
+    title: e.title,
+    instructor: e.instructor,
+    progress: e.progress,
+    progressColor: e.progressColor,
+    image: e.image,
+    link: `/courses/${e.courseId}`,
+  }));
+
+  // Recommended courses: courses from catalog that student hasn't enrolled in
+  const enrolledIdSet = new Set(enrollments.map((e) => e.courseId));
+  const allCatalog = getCatalogCourses();
+  const recommendedCandidates = allCatalog.filter((c) => !enrolledIdSet.has(c.id));
+  const displayRecommended = (recommendedCandidates.length > 0 ? recommendedCandidates : allCatalog)
+    .slice(0, 3)
+    .map((c) => ({
+      id: c.id,
+      title: c.title,
+      instructor: c.instructor,
+      rating: c.rating ? String(c.rating) : '4.8',
+      students: `${c.studentsCount || 0} students`,
+      image: c.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=200&auto=format&fit=crop',
+      link: `/courses/${c.id}`,
+    }));
 
   return (
     <div className="min-h-screen bg-[#07181E] text-white flex">
@@ -162,7 +140,7 @@ export default function StudentDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                 </svg>
               }
-              value="5"
+              value={String(totalEnrolled)}
               label="Enrolled Courses"
             />
             <StatCard
@@ -171,7 +149,7 @@ export default function StudentDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               }
-              value="2"
+              value={String(completedCount)}
               label="Completed"
             />
             <StatCard
@@ -181,7 +159,7 @@ export default function StudentDashboard() {
                   <polyline points="12 6 12 12 16 14" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               }
-              value="3"
+              value={String(inProgressCount)}
               label="In Progress"
             />
             <StatCard
@@ -190,14 +168,83 @@ export default function StudentDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               }
-              value="12"
-              label="Total Learning Hours"
+              value={String(estimatedHours || 0)}
+              label="Lessons Done"
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-7">
-              <ContinueLearningCard />
+              {activeCourse ? (
+                <div className="bg-[#0D2229] border border-[#1D363E] rounded-2xl p-6 shadow-lg flex flex-col justify-between h-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white tracking-tight">
+                      Continue Learning
+                    </h3>
+                    <button
+                      onClick={() => navigate('/student/courses')}
+                      className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
+                    >
+                      View All →
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-5">
+                    <div className="w-full sm:w-44 h-28 rounded-xl overflow-hidden bg-[#07181E] flex-shrink-0 border border-[#1D363E]/60">
+                      <img
+                        src={activeCourse.image}
+                        alt={activeCourse.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div className="flex-1 w-full">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-2">
+                        <div>
+                          <h4 className="text-base font-bold text-white leading-snug">
+                            {activeCourse.title}
+                          </h4>
+                          <p className="text-xs text-[#A9C0C7] mt-0.5">
+                            {activeCourse.instructor}
+                          </p>
+                        </div>
+
+                        <button
+                          onClick={() => navigate(`/courses/${activeCourse.courseId}`)}
+                          className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl transition-all shadow-sm flex-shrink-0 self-start sm:self-auto"
+                        >
+                          Continue
+                        </button>
+                      </div>
+
+                      <div className="mb-2">
+                        <div className="flex items-center justify-between text-xs text-[#A9C0C7] mb-1.5">
+                          <span>Progress</span>
+                          <span className="font-bold text-white">{activeCourse.progress}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-[#091B21] rounded-full overflow-hidden border border-[#1D363E]">
+                          <div className={`h-full ${activeCourse.progressColor} rounded-full`} style={{ width: `${activeCourse.progress}%` }}></div>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-[#A9C0C7]">
+                        <span className="text-white font-medium">Status:</span> {activeCourse.status}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#0D2229] border border-[#1D363E] rounded-2xl p-6 shadow-lg flex flex-col justify-center items-center text-center h-full min-h-[180px]">
+                  <h3 className="text-base font-bold text-white mb-2">No Courses In Progress</h3>
+                  <p className="text-xs text-[#A9C0C7] mb-4">Start learning by enrolling in courses from the catalog.</p>
+                  <button
+                    onClick={() => navigate('/student/browse')}
+                    className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs px-5 py-2.5 rounded-xl transition-all"
+                  >
+                    Browse Catalog
+                  </button>
+                </div>
+              )}
             </div>
             <div className="lg:col-span-5">
               <UpcomingDeadlinesCard />
@@ -218,11 +265,17 @@ export default function StudentDashboard() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {myCourses.map((course) => (
-                  <MyCourseCard key={course.id} course={course} />
-                ))}
-              </div>
+              {displayMyCourses.length === 0 ? (
+                <div className="p-8 text-center text-[#A9C0C7] text-sm">
+                  You have not enrolled in any courses yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {displayMyCourses.map((course) => (
+                    <MyCourseCard key={course.id} course={course} />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-5 bg-[#0D2229] border border-[#1D363E] rounded-2xl p-6 shadow-lg flex flex-col justify-between">
@@ -231,7 +284,7 @@ export default function StudentDashboard() {
                   Recommended for You
                 </h3>
                 <button
-                  onClick={() => navigate('/courses')}
+                  onClick={() => navigate('/student/browse')}
                   className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
                 >
                   View All →
@@ -239,7 +292,7 @@ export default function StudentDashboard() {
               </div>
 
               <div className="space-y-3">
-                {recommendedCourses.map((item) => (
+                {displayRecommended.map((item) => (
                   <RecommendedCourseItem key={item.id} item={item} />
                 ))}
               </div>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
-import { enrolledCourses } from '../../data/studentData';
+import { useStudentEnrollments } from '../../hooks/useStudentEnrollments';
 
 export default function StudentMyProgress() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [studentName, setStudentName] = useState('Student');
+
+  const { enrollments } = useStudentEnrollments();
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -22,13 +24,13 @@ export default function StudentMyProgress() {
     }
   }, []);
 
-  const totalCourses = enrolledCourses.length;
-  const completedCourses = enrolledCourses.filter((c) => c.status === 'Completed').length;
-  const inProgressCourses = enrolledCourses.filter((c) => c.status === 'In Progress').length;
-  const totalLessons = enrolledCourses.reduce((sum, c) => sum + c.totalLessons, 0);
-  const completedLessons = enrolledCourses.reduce((sum, c) => sum + c.lessonsCompleted, 0);
+  const totalCourses = enrollments.length;
+  const completedCourses = enrollments.filter((c) => c.status === 'Completed').length;
+  const inProgressCourses = enrollments.filter((c) => c.status === 'In Progress').length;
+  const totalLessons = enrollments.reduce((sum, c) => sum + (c.totalLessons || 0), 0);
+  const completedLessons = enrollments.reduce((sum, c) => sum + (c.lessonsCompleted || 0), 0);
   const averageProgress = totalCourses > 0
-    ? Math.round(enrolledCourses.reduce((sum, c) => sum + c.progress, 0) / totalCourses)
+    ? Math.round(enrollments.reduce((sum, c) => sum + (c.progress || 0), 0) / totalCourses)
     : 0;
 
   const getStatusColor = (status) => {
@@ -140,53 +142,59 @@ export default function StudentMyProgress() {
               Course Progress Details
             </h3>
 
-            <div className="space-y-4">
-              {enrolledCourses.map((course) => (
-                <div
-                  key={course.courseId}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-[#1D363E] hover:border-[#29444C] hover:bg-[#10272F] transition-all"
-                >
-                  <div className="w-full sm:w-20 h-14 rounded-lg overflow-hidden bg-[#07181E] flex-shrink-0 border border-[#1D363E]/60">
-                    <img
-                      src={course.image}
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                      <div className="min-w-0">
-                        <h4 className="text-sm font-bold text-white truncate">{course.title}</h4>
-                        <p className="text-xs text-[#A9C0C7]">{course.instructor}</p>
-                      </div>
-                      <div className={`text-[10px] font-bold px-2.5 py-1 rounded-full border flex-shrink-0 w-fit ${getStatusColor(course.status)}`}>
-                        {course.status}
-                      </div>
+            {enrollments.length === 0 ? (
+              <div className="p-8 text-center text-[#A9C0C7] text-sm">
+                No enrolled courses to track progress.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {enrollments.map((course) => (
+                  <div
+                    key={course.id || course.courseId}
+                    className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-[#1D363E] hover:border-[#29444C] hover:bg-[#10272F] transition-all"
+                  >
+                    <div className="w-full sm:w-20 h-14 rounded-lg overflow-hidden bg-[#07181E] flex-shrink-0 border border-[#1D363E]/60">
+                      <img
+                        src={course.image}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1">
-                        <div className="w-full h-2 bg-[#091B21] rounded-full overflow-hidden border border-[#1D363E]">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${getBarColor(course.status)}`}
-                            style={{ width: `${course.progress}%` }}
-                          ></div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-bold text-white truncate">{course.title}</h4>
+                          <p className="text-xs text-[#A9C0C7]">{course.instructor}</p>
+                        </div>
+                        <div className={`text-[10px] font-bold px-2.5 py-1 rounded-full border flex-shrink-0 w-fit ${getStatusColor(course.status)}`}>
+                          {course.status}
                         </div>
                       </div>
-                      <span className="text-xs font-bold text-white flex-shrink-0 w-10 text-right">
-                        {course.progress}%
-                      </span>
-                    </div>
 
-                    <div className="flex items-center gap-4 mt-2 text-[11px] text-[#A9C0C7]">
-                      <span>{course.lessonsCompleted} / {course.totalLessons} lessons</span>
-                      <span>Last accessed: {course.lastAccessed}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <div className="w-full h-2 bg-[#091B21] rounded-full overflow-hidden border border-[#1D363E]">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${getBarColor(course.status)}`}
+                              style={{ width: `${course.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        <span className="text-xs font-bold text-white flex-shrink-0 w-10 text-right">
+                          {course.progress}%
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-4 mt-2 text-[11px] text-[#A9C0C7]">
+                        <span>{course.lessonsCompleted} / {course.totalLessons} lessons</span>
+                        <span>Last accessed: {course.lastAccessed}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </main>
       </div>

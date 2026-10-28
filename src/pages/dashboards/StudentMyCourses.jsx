@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
-import { enrolledCourses } from '../../data/studentData';
+import { useStudentEnrollments } from '../../hooks/useStudentEnrollments';
 
 export default function StudentMyCourses() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [studentName, setStudentName] = useState('Student');
   const [activeFilter, setActiveFilter] = useState('All');
+
+  const { enrollments, loading } = useStudentEnrollments();
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -28,12 +30,12 @@ export default function StudentMyCourses() {
   const filters = ['All', 'In Progress', 'Completed', 'Not Started'];
 
   const filteredCourses = activeFilter === 'All'
-    ? enrolledCourses
-    : enrolledCourses.filter((c) => c.status === activeFilter);
+    ? enrollments
+    : enrollments.filter((c) => c.status === activeFilter);
 
-  const inProgressCount = enrolledCourses.filter((c) => c.status === 'In Progress').length;
-  const completedCount = enrolledCourses.filter((c) => c.status === 'Completed').length;
-  const notStartedCount = enrolledCourses.filter((c) => c.status === 'Not Started').length;
+  const inProgressCount = enrollments.filter((c) => c.status === 'In Progress').length;
+  const completedCount = enrollments.filter((c) => c.status === 'Completed').length;
+  const notStartedCount = enrollments.filter((c) => c.status === 'Not Started').length;
 
   const getStatusColor = (status) => {
     if (status === 'Completed') return 'text-[#4DE2BD] bg-[#143C3A]/60 border-[#4DE2BD]/30';
@@ -120,7 +122,25 @@ export default function StudentMyCourses() {
             ))}
           </div>
 
-          {filteredCourses.length === 0 ? (
+          {!loading && enrollments.length === 0 ? (
+            <div className="bg-[#0D2229] border border-[#1D363E] rounded-2xl p-12 text-center flex flex-col items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-[#14323A] flex items-center justify-center text-[#4DE2BD] mb-4">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">No courses enrolled yet</h3>
+              <p className="text-[#A9C0C7] text-sm max-w-sm mb-6">
+                Explore our catalog of courses and start your learning journey today.
+              </p>
+              <button
+                onClick={() => navigate('/student/browse')}
+                className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-md"
+              >
+                Browse Courses
+              </button>
+            </div>
+          ) : filteredCourses.length === 0 ? (
             <div className="bg-[#0D2229] border border-[#1D363E] rounded-2xl p-12 text-center">
               <p className="text-[#A9C0C7] text-sm">No courses found for this filter.</p>
             </div>
@@ -128,7 +148,7 @@ export default function StudentMyCourses() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredCourses.map((course) => (
                 <div
-                  key={course.courseId}
+                  key={course.id || course.courseId}
                   className="bg-[#0D2229] border border-[#1D363E] rounded-2xl p-4 flex flex-col justify-between hover:border-[#29444C] transition-all shadow-md"
                 >
                   <div>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
 import { getCatalogCourses } from '../../data/courseCatalog';
-import { enrolledCourses } from '../../data/studentData';
+import { useStudentEnrollments } from '../../hooks/useStudentEnrollments';
 
 export default function StudentBrowseCourses() {
   const navigate = useNavigate();
@@ -12,6 +12,8 @@ export default function StudentBrowseCourses() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [courses, setCourses] = useState(() => getCatalogCourses());
+
+  const { enrollments } = useStudentEnrollments();
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -34,7 +36,7 @@ export default function StudentBrowseCourses() {
     return () => window.removeEventListener('instructor_courses_updated', reloadCourses);
   }, []);
 
-  const enrolledIds = enrolledCourses.map((c) => c.courseId);
+  const enrolledIds = enrollments.map((c) => c.courseId);
 
   const categories = ['All', ...new Set(courses.map((c) => c.category))];
 
