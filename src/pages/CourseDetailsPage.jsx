@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getCatalogCourseById } from '../data/courseCatalog';
 import { getCurrentSession } from '../data/authStorage.js';
 import { saveEnrollment } from '../data/enrollmentStorage.js';
@@ -7,10 +7,14 @@ import { useStudentEnrollments } from '../hooks/useStudentEnrollments.js';
 
 export default function CourseDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const course = getCatalogCourseById(id);
   const session = getCurrentSession();
   const { enrollments } = useStudentEnrollments();
   const [feedback, setFeedback] = useState(null);
+
+  const backLink = session?.role === 'student' ? '/student/browse' : '/courses';
+  const backLabel = session?.role === 'student' ? '← Back to Browse Courses' : '← Back to Courses';
 
   if (!course) {
     return (
@@ -19,7 +23,9 @@ export default function CourseDetailsPage() {
           <p className="text-[#4DE2BD] text-xs font-semibold tracking-[0.2em] uppercase mb-3">Course unavailable</p>
           <h1 className="text-3xl font-black text-white tracking-tight mb-3">We couldn’t find that course.</h1>
           <p className="text-[#A9C0C7] text-sm leading-relaxed mb-6">The course may have been removed or the link is no longer valid.</p>
-          <Link to="/courses" className="inline-flex bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-sm px-5 py-3 rounded-xl transition-all">Back to Courses</Link>
+          <Link to={backLink} className="inline-flex bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-sm px-5 py-3 rounded-xl transition-all">
+            {session?.role === 'student' ? 'Back to Browse Courses' : 'Back to Courses'}
+          </Link>
         </div>
       </section>
     );
@@ -28,7 +34,10 @@ export default function CourseDetailsPage() {
   const isEnrolled = enrollments?.some((e) => e.courseId === course.id);
 
   const handleEnroll = () => {
-    if (!session?.email) return;
+    if (!session?.email) {
+      navigate('/login');
+      return;
+    }
     try {
       const result = saveEnrollment({ studentEmail: session.email, courseId: course.id });
       if (result.ok) {
@@ -45,7 +54,9 @@ export default function CourseDetailsPage() {
 
   return (
     <section className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
-      <Link to="/courses" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4DE2BD] hover:underline mb-7">← Back to Courses</Link>
+      <Link to={backLink} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4DE2BD] hover:underline mb-7">
+        {backLabel}
+      </Link>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7">
           {course.image && <img src={course.image} alt={course.title} className="w-full h-64 sm:h-80 object-cover rounded-2xl border border-[#1D363E] shadow-lg" />}
@@ -81,9 +92,17 @@ export default function CourseDetailsPage() {
                 Login to Enroll
               </Link>
             ) : isEnrolled ? (
-              <Link to="/student/courses" className="block text-center w-full bg-[#14323A] hover:bg-[#4DE2BD] hover:text-[#07181E] text-[#4DE2BD] font-bold py-3 px-5 rounded-xl border border-[#1D363E] hover:border-[#4DE2BD] transition-all">
-                Already Enrolled – View My Courses
-              </Link>
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => navigate(`/student/courses/${course.id}/learn`)}
+                  className="w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md"
+                >
+                  Continue Learning
+                </button>
+                <Link to="/student/courses" className="block text-center w-full bg-[#14323A] hover:bg-[#1D363E] text-[#4DE2BD] font-bold py-2.5 px-5 rounded-xl border border-[#1D363E] transition-all text-xs">
+                  View in My Courses
+                </Link>
+              </div>
             ) : (
               <button onClick={handleEnroll} className="w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md">
                 Enroll Now

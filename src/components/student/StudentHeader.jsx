@@ -23,7 +23,7 @@ export default function StudentHeader({ setMobileOpen, studentName }) {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/courses?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/student/browse?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -61,29 +61,17 @@ export default function StudentHeader({ setMobileOpen, studentName }) {
         </form>
       </div>
 
-      <div className="flex items-center space-x-6">
-        <button
-          type="button"
-          disabled
-          title="Messages are available in a future milestone"
-          className="relative text-[#A9C0C7]/45 p-2 cursor-not-allowed focus:outline-none"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#07181E]" />
-        </button>
-
+      <div className="flex items-center gap-4">
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2.5 p-1 rounded-full hover:bg-[#0D2229] transition-colors focus:outline-none cursor-pointer"
+            className="flex items-center gap-3 p-1.5 rounded-full hover:bg-[#0D2229] transition-colors focus:outline-none"
           >
-            <div className="w-9 h-9 rounded-full bg-[#4DE2BD] text-[#07181E] font-bold flex items-center justify-center text-sm shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-[#fbcfe8] text-[#831843] font-bold flex items-center justify-center text-sm shadow-sm">
               {firstLetter}
             </div>
-            <span className="hidden sm:inline text-sm font-semibold text-white">
-              Hi, {studentName || 'Student'}
+            <span className="hidden sm:block text-sm font-bold text-white pr-1">
+              {studentName}
             </span>
             <svg className="w-4 h-4 text-[#A9C0C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -91,34 +79,20 @@ export default function StudentHeader({ setMobileOpen, studentName }) {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-[#0D2229] border border-[#1D363E] rounded-2xl py-2 shadow-2xl z-50">
-              <div className="px-4 py-2 border-b border-[#1D363E]">
+            <div className="absolute right-0 mt-2 w-48 bg-[#0D2229] border border-[#1D363E] rounded-2xl shadow-2xl py-2 z-50">
+              <div className="px-4 py-2 border-b border-[#1D363E]/50">
                 <p className="text-xs text-[#A9C0C7]">Signed in as</p>
-                <p className="text-sm font-bold text-white truncate">{studentName || 'Student'}</p>
+                <p className="text-sm font-bold text-white truncate">{studentName}</p>
               </div>
-              <button
-                onClick={() => {
-                  setDropdownOpen(false);
-                  navigate('/student/courses');
-                }}
-                className="w-full text-left px-4 py-2 text-xs sm:text-sm text-[#A9C0C7] hover:bg-[#14323A] hover:text-[#4DE2BD] transition-colors"
-              >
-                My Courses
-              </button>
-              <button
-                type="button"
-                disabled
-                title="Settings are available in a future milestone"
-                className="w-full text-left px-4 py-2 text-xs sm:text-sm text-[#A9C0C7]/45 cursor-not-allowed"
-              >
-                Settings
-              </button>
-              <div className="border-t border-[#1D363E] my-1" />
+
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-xs sm:text-sm text-red-400 hover:bg-red-950/40 transition-colors"
+                className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-[#14323A] transition-colors"
               >
-                Log Out
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Log Out</span>
               </button>
             </div>
           )}
