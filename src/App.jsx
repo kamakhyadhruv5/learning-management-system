@@ -16,6 +16,7 @@ import InstructorAddCoursePage from './pages/instructor/InstructorAddCoursePage'
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AdminManageUsers from './pages/admin/AdminManageUsers';
 import AdminManageCourses from './pages/admin/AdminManageCourses';
+import AdminManageCategories from './pages/admin/AdminManageCategories';
 import CourseDetailsPage from './pages/CourseDetailsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -47,7 +48,10 @@ export default function App() {
 
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageUsers /></ProtectedRoute>} />
+        <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageUsers defaultRole="Student" /></ProtectedRoute>} />
+        <Route path="/admin/instructors" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageUsers defaultRole="Instructor" /></ProtectedRoute>} />
         <Route path="/admin/courses" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageCourses /></ProtectedRoute>} />
+        <Route path="/admin/categories" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageCategories /></ProtectedRoute>} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

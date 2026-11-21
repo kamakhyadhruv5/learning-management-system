@@ -65,7 +65,7 @@ export default function AdminHeader({ setMobileOpen, adminName }) {
         <button
           type="button"
           disabled
-          title="Reports are available in a future milestone"
+          title="Notifications"
           className="relative text-[#A9C0C7]/45 p-2 cursor-not-allowed focus:outline-none"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,14 +113,6 @@ export default function AdminHeader({ setMobileOpen, adminName }) {
                 className="w-full text-left px-4 py-2 text-xs sm:text-sm text-[#A9C0C7] hover:bg-[#14323A] hover:text-[#4DE2BD] transition-colors"
               >
                 Manage Courses
-              </button>
-              <button
-                type="button"
-                disabled
-                title="Settings are available in a future milestone"
-                className="w-full text-left px-4 py-2 text-xs sm:text-sm text-[#A9C0C7]/45 cursor-not-allowed"
-              >
-                Settings
               </button>
               <div className="border-t border-[#1D363E] my-1" />
               <button

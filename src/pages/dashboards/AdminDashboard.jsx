@@ -3,6 +3,9 @@ import AdminSidebar from '../../components/admin/AdminSidebar';
 import AdminHeader from '../../components/admin/AdminHeader';
 import StatCard from '../../components/student/StatCard';
 import { adminData } from '../../data/adminData';
+import { getStoredUsers } from '../../data/userStorage';
+import { getAllCatalogCourses } from '../../data/courseCatalog';
+import { getStoredCategories } from '../../data/courseStorage';
 import { useNavigate } from 'react-router-dom';
 
 function UserGrowthChart({ data }) {
@@ -81,8 +84,9 @@ function DonutChart({ data, total }) {
   const circumference = 2 * Math.PI * r;
   let offset = 0;
 
-  const segments = data.map((cat) => {
-    const dashLen = (cat.percentage / 100) * circumference;
+  const validData = Array.isArray(data) ? data : [];
+  const segments = validData.map((cat) => {
+    const dashLen = ((cat.percentage || 0) / 100) * circumference;
     const segment = { ...cat, dashLen, startOffset: offset };
     offset += dashLen;
     return segment;
@@ -90,6 +94,14 @@ function DonutChart({ data, total }) {
 
   return (
     <svg viewBox="0 0 180 180" className="w-full h-full">
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r}
+        fill="none"
+        stroke="#142830"
+        strokeWidth="22"
+      />
       {segments.map((seg) => (
         <circle
           key={seg.name}
@@ -105,7 +117,7 @@ function DonutChart({ data, total }) {
         />
       ))}
       <text x={cx} y={cy - 8} textAnchor="middle" fill="white" fontSize="20" fontWeight="800" fontFamily="inherit">
-        {total}
+        {total ?? 0}
       </text>
       <text x={cx} y={cy + 10} textAnchor="middle" fill="#A9C0C7" fontSize="9" fontFamily="inherit">
         Courses
@@ -162,19 +174,56 @@ const typeColors = {
 export default function AdminDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [adminName, setAdminName] = useState('Admin');
+  const [users, setUsers] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+
+  const loadData = () => {
+    setUsers(getStoredUsers());
+    setCourses(getAllCatalogCourses());
+    setCategories(getStoredCategories());
+  };
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (stored.fullName) setAdminName(stored.fullName);
     else if (stored.email) setAdminName(stored.email.split('@')[0]);
+
+    loadData();
+    window.addEventListener('admin_users_updated', loadData);
+    window.addEventListener('instructor_courses_updated', loadData);
+    window.addEventListener('course_categories_updated', loadData);
+    window.addEventListener('storage', loadData);
+    return () => {
+      window.removeEventListener('admin_users_updated', loadData);
+      window.removeEventListener('instructor_courses_updated', loadData);
+      window.removeEventListener('course_categories_updated', loadData);
+      window.removeEventListener('storage', loadData);
+    };
   }, []);
+
+  const totalStudents = users.filter((u) => u.role?.toLowerCase() === 'student').length;
+  const totalInstructors = users.filter((u) => u.role?.toLowerCase() === 'instructor').length;
+  const totalCourses = courses.length;
+  const totalCategories = categories.length;
+
+  const CATEGORY_COLORS = ['#4DE2BD', '#38BDF8', '#A855F7', '#F59E0B', '#EC4899', '#10B981', '#6366F1', '#F43F5E'];
+
+  const categoryDistribution = categories.map((cat, idx) => {
+    const norm = cat.trim().toLowerCase();
+    const count = courses.filter((c) => String(c.category || '').trim().toLowerCase() === norm).length;
+    return {
+      name: cat,
+      count,
+      percentage: totalCourses > 0 ? Math.round((count / totalCourses) * 100) : 0,
+      color: CATEGORY_COLORS[idx % CATEGORY_COLORS.length],
+    };
+  });
 
   const quickActions = [
     { label: 'Add New User', icon: '👤', path: '/admin/users', color: '#4DE2BD' },
     { label: 'Add New Course', icon: '📚', path: '/admin/courses', color: '#38BDF8' },
-    { label: 'View Reports', icon: '📊', color: '#A855F7', available: false },
-    { label: 'Settings', icon: '⚙️', color: '#F59E0B', available: false },
   ];
 
   return (
@@ -201,37 +250,37 @@ export default function AdminDashboard() {
                 A better learning world starts with greater management.
               </p>
             </div>
-            <button
-              type="button"
-              disabled
-              title="Reports are available in a future milestone"
-              className="flex-shrink-0 bg-[#4DE2BD]/50 text-[#07181E]/70 font-bold text-sm px-6 py-3 rounded-xl cursor-not-allowed relative z-10"
-            >
-              View Reports
-            </button>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
-              value={adminData.stats.totalStudents}
-              label="Total Students"
-            />
-            <StatCard
-              icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>}
-              value={adminData.stats.totalInstructors}
-              label="Instructors"
-            />
-            <StatCard
-              icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
-              value={adminData.stats.totalCourses}
-              label="Total Courses"
-            />
-            <StatCard
-              icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}
-              value={adminData.stats.totalCategories}
-              label="Categories"
-            />
+            <div onClick={() => navigate('/admin/students')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+              <StatCard
+                icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
+                value={totalStudents}
+                label="Total Students"
+              />
+            </div>
+            <div onClick={() => navigate('/admin/instructors')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+              <StatCard
+                icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>}
+                value={totalInstructors}
+                label="Instructors"
+              />
+            </div>
+            <div onClick={() => navigate('/admin/courses')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+              <StatCard
+                icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
+                value={totalCourses}
+                label="Total Courses"
+              />
+            </div>
+            <div onClick={() => navigate('/admin/categories')} className="cursor-pointer transition-transform hover:scale-[1.02]">
+              <StatCard
+                icon={<svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>}
+                value={totalCategories}
+                label="Categories"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -251,11 +300,11 @@ export default function AdminDashboard() {
               <div className="flex items-center gap-4 mb-2">
                 <div className="flex items-center gap-1.5">
                   <span className="w-4 h-0.5 bg-[#4DE2BD] rounded-full inline-block" />
-                  <span className="text-xs text-[#A9C0C7]">Students ({adminData.stats.totalStudents})</span>
+                  <span className="text-xs text-[#A9C0C7]">Students ({totalStudents})</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-4 h-px bg-[#38BDF8] inline-block" style={{borderTop:'2px dashed #38BDF8',height:0}} />
-                  <span className="text-xs text-[#A9C0C7]">Instructors ({adminData.stats.totalInstructors})</span>
+                  <span className="text-xs text-[#A9C0C7]">Instructors ({totalInstructors})</span>
                 </div>
               </div>
               <div className="h-48">
@@ -289,10 +338,10 @@ export default function AdminDashboard() {
             <div className="bg-[#0D2229] border border-[#1D363E] rounded-2xl p-6">
               <h3 className="text-base font-bold text-white mb-4">Course Distribution</h3>
               <div className="w-40 h-40 mx-auto mb-4">
-                <DonutChart data={adminData.categoryDistribution} total={adminData.stats.totalCourses} />
+                <DonutChart data={categoryDistribution} total={totalCourses} />
               </div>
               <div className="space-y-2.5">
-                {adminData.categoryDistribution.map((cat) => (
+                {categoryDistribution.map((cat) => (
                   <div key={cat.name} className="flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color }} />
