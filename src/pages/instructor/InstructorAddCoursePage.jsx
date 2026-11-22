@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InstructorSidebar from '../../components/instructor/InstructorSidebar';
 import InstructorHeader from '../../components/instructor/InstructorHeader';
-import { addStoredCourse, COURSE_CATEGORIES, PRESET_IMAGES } from '../../data/courseStorage';
+import { addStoredCourse, getStoredCategories, PRESET_IMAGES } from '../../data/courseStorage';
 
 export default function InstructorAddCoursePage() {
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [instructorName, setInstructorName] = useState('Instructor');
+  const [categoriesList, setCategoriesList] = useState(() => getStoredCategories());
 
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState(COURSE_CATEGORIES[0]);
+  const [category, setCategory] = useState(() => {
+    const cats = getStoredCategories();
+    return cats[0] || 'Web Development';
+  });
   const [description, setDescription] = useState('');
   const [level, setLevel] = useState('All Levels');
   const [duration, setDuration] = useState('24 hours');
@@ -21,6 +25,20 @@ export default function InstructorAddCoursePage() {
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [createdCourse, setCreatedCourse] = useState(null);
+
+  useEffect(() => {
+    const handleCatsUpdated = () => {
+      const updatedCats = getStoredCategories();
+      setCategoriesList(updatedCats);
+      setCategory((prev) => (updatedCats.includes(prev) ? prev : (updatedCats[0] || 'Web Development')));
+    };
+    window.addEventListener('course_categories_updated', handleCatsUpdated);
+    window.addEventListener('storage', handleCatsUpdated);
+    return () => {
+      window.removeEventListener('course_categories_updated', handleCatsUpdated);
+      window.removeEventListener('storage', handleCatsUpdated);
+    };
+  }, []);
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -191,7 +209,7 @@ export default function InstructorAddCoursePage() {
                         onChange={(e) => setCategory(e.target.value)}
                         className="w-full bg-[#07181E] border border-[#1D363E] text-sm text-white rounded-xl px-4 py-3 pr-10 appearance-none focus:outline-none focus:border-[#4DE2BD] transition-colors cursor-pointer"
                       >
-                        {COURSE_CATEGORIES.map((cat) => (
+                        {categoriesList.map((cat) => (
                           <option key={cat} value={cat}>
                             {cat}
                           </option>
