@@ -10,6 +10,9 @@ import StudentDashboard from './pages/dashboards/StudentDashboard';
 import StudentMyCourses from './pages/dashboards/StudentMyCourses';
 import StudentBrowseCourses from './pages/dashboards/StudentBrowseCourses';
 import StudentMyProgress from './pages/dashboards/StudentMyProgress';
+import StudentCourseViewerPage from './pages/dashboards/StudentCourseViewerPage';
+import StudentQuizPage from './pages/dashboards/StudentQuizPage';
+import StudentQuizzesDashboardPage from './pages/dashboards/StudentQuizzesDashboardPage';
 import InstructorDashboard from './pages/dashboards/InstructorDashboard';
 import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
 import InstructorAddCoursePage from './pages/instructor/InstructorAddCoursePage';
@@ -36,16 +39,22 @@ export default function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/role" element={<Navigate to="/signup" replace />} />
 
+        {/* Student Protected Routes */}
         <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
         <Route path="/student/courses" element={<ProtectedRoute allowedRoles={['student']}><StudentMyCourses /></ProtectedRoute>} />
+        <Route path="/student/courses/:id/learn" element={<ProtectedRoute allowedRoles={['student']}><StudentCourseViewerPage /></ProtectedRoute>} />
+        <Route path="/student/courses/:id/quiz" element={<ProtectedRoute allowedRoles={['student']}><StudentQuizPage /></ProtectedRoute>} />
+        <Route path="/student/quizzes" element={<ProtectedRoute allowedRoles={['student']}><StudentQuizzesDashboardPage /></ProtectedRoute>} />
         <Route path="/student/browse" element={<ProtectedRoute allowedRoles={['student']}><StudentBrowseCourses /></ProtectedRoute>} />
         <Route path="/student/progress" element={<ProtectedRoute allowedRoles={['student']}><StudentMyProgress /></ProtectedRoute>} />
 
+        {/* Instructor Protected Routes */}
         <Route path="/instructor/dashboard" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorDashboard /></ProtectedRoute>} />
         <Route path="/instructor/courses" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorCoursesPage /></ProtectedRoute>} />
         <Route path="/instructor/courses/add" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorAddCoursePage /></ProtectedRoute>} />
         <Route path="/instructor/courses/manage" element={<ProtectedRoute allowedRoles={['instructor']}><Navigate to="/instructor/courses" replace /></ProtectedRoute>} />
 
+        {/* Admin Protected Routes */}
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
         <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageUsers /></ProtectedRoute>} />
         <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminManageUsers defaultRole="Student" /></ProtectedRoute>} />

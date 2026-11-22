@@ -47,7 +47,7 @@ export default function StudentDashboard() {
     progress: e.progress,
     progressColor: e.progressColor,
     image: e.image,
-    link: `/courses/${e.courseId}`,
+    link: `/student/courses/${e.courseId}/learn`,
   }));
 
   // Recommended courses: courses from catalog that student hasn't enrolled in
@@ -210,7 +210,7 @@ export default function StudentDashboard() {
                         </div>
 
                         <button
-                          onClick={() => navigate(`/courses/${activeCourse.courseId}`)}
+                          onClick={() => navigate(`/student/courses/${activeCourse.courseId}/learn`)}
                           className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl transition-all shadow-sm flex-shrink-0 self-start sm:self-auto"
                         >
                           Continue

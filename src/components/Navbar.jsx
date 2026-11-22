@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Logo from './Logo';
+import { getCurrentSession, getDashboardPath } from '../data/authStorage';
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [session, setSession] = useState(() => getCurrentSession());
+
+  useEffect(() => {
+    setSession(getCurrentSession());
+  }, [location.pathname]);
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -51,7 +57,7 @@ export default function Navbar() {
 
       <div className="hidden sm:flex items-center space-x-7">
         <button
-          onClick={() => navigate('/courses')}
+          onClick={() => navigate(session?.role === 'student' ? '/student/browse' : '/courses')}
           aria-label="Search"
           className="text-[#A9C0C7] hover:text-white transition-colors p-1.5 focus:outline-none"
         >
@@ -69,21 +75,39 @@ export default function Navbar() {
           </svg>
         </button>
 
-        <button
-          onClick={() => navigate('/login')}
-          className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-[15px] px-8 py-2.5 rounded-full transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm"
-        >
-          Login
-        </button>
+        {session ? (
+          <button
+            onClick={() => navigate(getDashboardPath(session.role))}
+            className="bg-[#14323A] border border-[#4DE2BD] text-[#4DE2BD] hover:bg-[#4DE2BD] hover:text-[#07181E] font-bold text-[14px] px-6 py-2 rounded-full transition-all duration-200 shadow-sm"
+          >
+            Dashboard ({session.role.charAt(0).toUpperCase() + session.role.slice(1)})
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-[15px] px-8 py-2.5 rounded-full transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+          >
+            Login
+          </button>
+        )}
       </div>
 
       <div className="flex sm:hidden items-center space-x-3">
-        <button
-          onClick={() => navigate('/login')}
-          className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs px-4 py-1.5 rounded-full"
-        >
-          Login
-        </button>
+        {session ? (
+          <button
+            onClick={() => navigate(getDashboardPath(session.role))}
+            className="bg-[#4DE2BD] text-[#07181E] font-bold text-xs px-3.5 py-1.5 rounded-full"
+          >
+            Dashboard
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate('/login')}
+            className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs px-4 py-1.5 rounded-full"
+          >
+            Login
+          </button>
+        )}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle Menu"
@@ -120,6 +144,15 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
+          {session && (
+            <Link
+              to={getDashboardPath(session.role)}
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-[#4DE2BD] font-bold py-2 border-t border-[#1D363E] pt-4"
+            >
+              Go to Dashboard →
+            </Link>
+          )}
         </div>
       )}
     </header>

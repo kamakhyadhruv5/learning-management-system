@@ -187,12 +187,21 @@ export default function StudentMyCourses() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => navigate(`/courses/${course.courseId}`)}
-                    className="w-full bg-[#14323A] hover:bg-[#4DE2BD] hover:text-[#07181E] text-[#4DE2BD] font-bold text-xs py-2.5 rounded-xl border border-[#1D363E] hover:border-[#4DE2BD] transition-all"
-                  >
-                    {course.status === 'Completed' ? 'View Course' : course.status === 'Not Started' ? 'Start Learning' : 'Continue Learning'}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/student/courses/${course.courseId}/learn`)}
+                      className="flex-1 bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs py-2.5 rounded-xl transition-all shadow-sm"
+                    >
+                      {course.status === 'Completed' ? 'Review Lessons' : course.status === 'Not Started' ? 'Start Learning' : 'Continue Learning'}
+                    </button>
+                    <button
+                      onClick={() => navigate(`/courses/${course.courseId}`)}
+                      className="px-3 bg-[#14323A] hover:bg-[#1D363E] text-[#A9C0C7] hover:text-white font-medium text-xs rounded-xl border border-[#1D363E] transition-all"
+                      title="Course Details"
+                    >
+                      Details
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
