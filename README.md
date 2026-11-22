@@ -27,9 +27,4 @@ A modern, responsive Learning Management System frontend application built with 
 | `/instructor/courses/manage` | Course Management | Student submissions, ratings, and course status |
 | `/admin/dashboard` | Admin Console | Platform administration and system metrics |
 
-## 🚀 Running the Project
 
-```bash
-cd /Users/dhruvkamakhya/.gemini/antigravity/scratch/lms-landing-page
-npm run dev
-```
