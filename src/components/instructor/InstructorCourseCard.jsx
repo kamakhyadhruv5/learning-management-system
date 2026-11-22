@@ -48,14 +48,14 @@ export default function InstructorCourseCard({ course }) {
         </span>
 
         <button
-          onClick={() => navigate('/instructor/courses')}
-          aria-label="Course options"
-          className="text-[#A9C0C7] hover:text-white p-1 rounded-lg hover:bg-[#14323A] transition-colors"
+          onClick={() => navigate(`/instructor/courses/manage?courseId=${course.id}`)}
+          title="Manage course lessons, materials & quizzes"
+          aria-label="Manage Course Content"
+          className="text-[#A9C0C7] hover:text-[#4DE2BD] p-1.5 rounded-lg hover:bg-[#14323A] transition-colors flex items-center gap-1 text-xs font-semibold"
         >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <circle cx="5" cy="12" r="2" />
-            <circle cx="12" cy="12" r="2" />
-            <circle cx="19" cy="12" r="2" />
+          <span>Manage</span>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>

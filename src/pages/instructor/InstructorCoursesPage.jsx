@@ -3,23 +3,27 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import InstructorSidebar from '../../components/instructor/InstructorSidebar';
 import InstructorHeader from '../../components/instructor/InstructorHeader';
 import StatCard from '../../components/student/StatCard';
-import { getStoredCourses, updateStoredCourse, COURSE_CATEGORIES } from '../../data/courseStorage';
+import { getStoredCourses, updateStoredCourse, deleteStoredCourse, COURSE_CATEGORIES } from '../../data/courseStorage';
 
 export default function InstructorCoursesPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [instructorName, setInstructorName] = useState('Instructor');
+  const [currentUserId, setCurrentUserId] = useState('');
   const [courses, setCourses] = useState([]);
   const [activeTab, setActiveTab] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [deletingCourse, setDeletingCourse] = useState(null);
+  const [actionError, setActionError] = useState('');
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
+        if (user.id) setCurrentUserId(user.id);
         if (user.fullName) {
           setInstructorName(user.fullName);
         } else if (user.email) {
@@ -58,6 +62,18 @@ export default function InstructorCoursesPage() {
     const nextStatus = course.status === 'Published' ? 'Draft' : 'Published';
     updateStoredCourse(course.id, { status: nextStatus });
     setCourses(getStoredCourses());
+  };
+
+  const handleDeleteCourse = () => {
+    if (!deletingCourse) return;
+    if (deletingCourse.instructorId && currentUserId && deletingCourse.instructorId !== currentUserId) {
+      setActionError('You cannot delete a course belonging to another instructor.');
+      setDeletingCourse(null);
+      return;
+    }
+    deleteStoredCourse(deletingCourse.id);
+    setCourses(getStoredCourses());
+    setDeletingCourse(null);
   };
 
   const totalCount = courses.length;
@@ -122,6 +138,23 @@ export default function InstructorCoursesPage() {
               <span>Add New Course</span>
             </button>
           </div>
+
+          {actionError && (
+            <div className="bg-rose-950/40 border border-rose-800/60 text-rose-300 rounded-2xl p-4 text-xs sm:text-sm flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 flex-shrink-0 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{actionError}</span>
+              </div>
+              <button
+                onClick={() => setActionError('')}
+                className="text-rose-400 hover:text-white p-1"
+              >
+                ✕
+              </button>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <StatCard
@@ -321,34 +354,60 @@ export default function InstructorCoursesPage() {
                     </div>
                   </div>
 
-                  <div className="p-5 pt-0 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => navigate(`/instructor/courses/edit/${course.id}`)}
-                      title="Edit course"
-                      className="flex items-center gap-1.5 text-xs font-bold py-2 px-3.5 rounded-xl border bg-[#07181E] text-[#A9C0C7] border-[#1D363E] hover:text-[#4DE2BD] hover:border-[#4DE2BD]/40 hover:bg-[#10272F] transition-all"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      <span>Edit</span>
-                    </button>
+                  <div className="p-5 pt-0 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => navigate(`/instructor/courses/manage?courseId=${course.id}`)}
+                        title="Manage lessons, materials & quizzes"
+                        className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold py-2 px-3 rounded-xl border bg-[#14323A] text-[#4DE2BD] border-[#4DE2BD]/30 hover:bg-[#4DE2BD] hover:text-[#07181E] transition-all"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        <span>Manage Content</span>
+                      </button>
 
-                    <button
-                      onClick={() => handleToggleStatus(course)}
-                      title="Click to toggle status"
-                      className={`text-xs font-bold py-2 px-3.5 rounded-xl border transition-all flex items-center gap-1.5 ${
-                        course.status === 'Published'
-                          ? 'bg-[#143e39] text-[#4DE2BD] border-[#4DE2BD]/30 hover:bg-[#184d47]'
-                          : 'bg-[#2a2216] text-[#fbbf24] border-[#fbbf24]/30 hover:bg-[#382d1c]'
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          course.status === 'Published' ? 'bg-[#4DE2BD]' : 'bg-[#fbbf24]'
+                      <button
+                        onClick={() => handleToggleStatus(course)}
+                        title="Click to toggle status"
+                        className={`text-xs font-bold py-2 px-3 rounded-xl border transition-all flex items-center gap-1.5 ${
+                          course.status === 'Published'
+                            ? 'bg-[#143e39] text-[#4DE2BD] border-[#4DE2BD]/30 hover:bg-[#184d47]'
+                            : 'bg-[#2a2216] text-[#fbbf24] border-[#fbbf24]/30 hover:bg-[#382d1c]'
                         }`}
-                      />
-                      <span>{course.status}</span>
-                    </button>
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            course.status === 'Published' ? 'bg-[#4DE2BD]' : 'bg-[#fbbf24]'
+                          }`}
+                        />
+                        <span>{course.status}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-[#1D363E]/40">
+                      <button
+                        onClick={() => navigate(`/instructor/courses/edit/${course.id}`)}
+                        title="Edit course details"
+                        className="flex items-center gap-1.5 text-xs font-semibold py-1.5 px-3 rounded-lg border bg-[#07181E] text-[#A9C0C7] border-[#1D363E] hover:text-white hover:border-[#29444C] hover:bg-[#10272F] transition-all"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Edit Details</span>
+                      </button>
+
+                      <button
+                        onClick={() => setDeletingCourse(course)}
+                        title="Delete course"
+                        className="flex items-center gap-1 text-xs font-semibold py-1.5 px-2.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 border border-transparent hover:border-rose-800/40 transition-all"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -356,6 +415,36 @@ export default function InstructorCoursesPage() {
           )}
         </main>
       </div>
+
+      {deletingCourse && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#0D2229] border border-[#1D363E] w-full max-w-md rounded-2xl p-6 shadow-2xl relative text-center">
+            <div className="w-12 h-12 rounded-full bg-rose-950/60 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-white mb-2">Delete Course</h3>
+            <p className="text-xs text-[#A9C0C7] mb-6">
+              Are you sure you want to delete <span className="text-white font-bold">{deletingCourse.title}</span>? This action will remove the course and its associated content.
+            </p>
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={() => setDeletingCourse(null)}
+                className="px-4 py-2.5 bg-[#07181E] text-white text-xs font-bold rounded-xl border border-[#1D363E] hover:bg-[#10272F]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteCourse}
+                className="px-5 py-2.5 bg-rose-500 text-white text-xs font-bold rounded-xl hover:bg-rose-600 transition-all"
+              >
+                Delete Course
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
