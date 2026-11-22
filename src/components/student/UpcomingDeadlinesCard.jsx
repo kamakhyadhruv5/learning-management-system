@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function UpcomingDeadlinesCard() {
+  const navigate = useNavigate();
 
   const deadlines = [
     {
@@ -49,7 +51,7 @@ export default function UpcomingDeadlinesCard() {
         </h3>
         <button
           type="button"
-          onClick={() => window.location.href = '/student/quizzes'}
+          onClick={() => navigate('/student/quizzes')}
           className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
         >
           View All →

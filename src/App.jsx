@@ -12,10 +12,12 @@ import StudentBrowseCourses from './pages/dashboards/StudentBrowseCourses';
 import StudentMyProgress from './pages/dashboards/StudentMyProgress';
 import StudentCourseViewerPage from './pages/dashboards/StudentCourseViewerPage';
 import StudentQuizPage from './pages/dashboards/StudentQuizPage';
-import StudentQuizzesDashboardPage from './pages/dashboards/StudentQuizzesDashboardPage';
+import StudentQuizzesPage from './pages/dashboards/StudentQuizzesPage';
 import InstructorDashboard from './pages/dashboards/InstructorDashboard';
 import InstructorCoursesPage from './pages/instructor/InstructorCoursesPage';
 import InstructorAddCoursePage from './pages/instructor/InstructorAddCoursePage';
+import InstructorEditCoursePage from './pages/instructor/InstructorEditCoursePage';
+import InstructorCourseManagePage from './pages/instructor/InstructorCourseManagePage';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AdminManageUsers from './pages/admin/AdminManageUsers';
 import AdminManageCourses from './pages/admin/AdminManageCourses';
@@ -44,7 +46,7 @@ export default function App() {
         <Route path="/student/courses" element={<ProtectedRoute allowedRoles={['student']}><StudentMyCourses /></ProtectedRoute>} />
         <Route path="/student/courses/:id/learn" element={<ProtectedRoute allowedRoles={['student']}><StudentCourseViewerPage /></ProtectedRoute>} />
         <Route path="/student/courses/:id/quiz" element={<ProtectedRoute allowedRoles={['student']}><StudentQuizPage /></ProtectedRoute>} />
-        <Route path="/student/quizzes" element={<ProtectedRoute allowedRoles={['student']}><StudentQuizzesDashboardPage /></ProtectedRoute>} />
+        <Route path="/student/quizzes" element={<ProtectedRoute allowedRoles={['student']}><StudentQuizzesPage /></ProtectedRoute>} />
         <Route path="/student/browse" element={<ProtectedRoute allowedRoles={['student']}><StudentBrowseCourses /></ProtectedRoute>} />
         <Route path="/student/progress" element={<ProtectedRoute allowedRoles={['student']}><StudentMyProgress /></ProtectedRoute>} />
 
@@ -52,7 +54,8 @@ export default function App() {
         <Route path="/instructor/dashboard" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorDashboard /></ProtectedRoute>} />
         <Route path="/instructor/courses" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorCoursesPage /></ProtectedRoute>} />
         <Route path="/instructor/courses/add" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorAddCoursePage /></ProtectedRoute>} />
-        <Route path="/instructor/courses/manage" element={<ProtectedRoute allowedRoles={['instructor']}><Navigate to="/instructor/courses" replace /></ProtectedRoute>} />
+        <Route path="/instructor/courses/edit/:id" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorEditCoursePage /></ProtectedRoute>} />
+        <Route path="/instructor/courses/manage" element={<ProtectedRoute allowedRoles={['instructor']}><InstructorCourseManagePage /></ProtectedRoute>} />
 
         {/* Admin Protected Routes */}
         <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
