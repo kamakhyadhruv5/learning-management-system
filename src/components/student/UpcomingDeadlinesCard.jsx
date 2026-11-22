@@ -49,9 +49,8 @@ export default function UpcomingDeadlinesCard() {
         </h3>
         <button
           type="button"
-          disabled
-          title="Quizzes are available in a future milestone"
-          className="text-xs font-semibold text-[#4DE2BD]/50 cursor-not-allowed flex items-center gap-1"
+          onClick={() => window.location.href = '/student/quizzes'}
+          className="text-xs font-semibold text-[#4DE2BD] hover:underline flex items-center gap-1"
         >
           View All →
         </button>

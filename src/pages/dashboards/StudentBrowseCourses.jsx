@@ -1,17 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import StudentSidebar from '../../components/student/StudentSidebar';
 import StudentHeader from '../../components/student/StudentHeader';
 import { getCatalogCourses } from '../../data/courseCatalog';
-import { enrolledCourses } from '../../data/studentData';
+import { useStudentEnrollments } from '../../hooks/useStudentEnrollments';
 
 export default function StudentBrowseCourses() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [studentName, setStudentName] = useState('Student');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [courses, setCourses] = useState(() => getCatalogCourses());
+
+  const { enrollments } = useStudentEnrollments();
+
+  // Sync search param from query if provided
+  useEffect(() => {
+    const q = searchParams.get('search');
+    if (q) setSearchQuery(q);
+  }, [searchParams]);
 
   useEffect(() => {
     const userStr = localStorage.getItem('currentUser');
@@ -34,13 +43,13 @@ export default function StudentBrowseCourses() {
     return () => window.removeEventListener('instructor_courses_updated', reloadCourses);
   }, []);
 
-  const enrolledIds = enrolledCourses.map((c) => c.courseId);
+  const enrolledIds = enrollments.map((c) => c.courseId);
 
   const categories = ['All', ...new Set(courses.map((c) => c.category))];
 
   const filteredCourses = courses.filter((course) => {
     const matchesCategory = activeCategory === 'All' || course.category === activeCategory;
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !query ||
       course.title?.toLowerCase().includes(query) ||
@@ -175,12 +184,24 @@ export default function StudentBrowseCourses() {
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => navigate(`/courses/${course.id}`)}
-                        className="w-full bg-[#14323A] hover:bg-[#4DE2BD] hover:text-[#07181E] text-[#4DE2BD] font-bold text-xs sm:text-sm py-2.5 rounded-xl transition-all duration-200"
-                      >
-                        {isEnrolled ? 'Continue Learning' : 'View Course'}
-                      </button>
+                      <div className="flex gap-2">
+                        {isEnrolled ? (
+                          <button
+                            onClick={() => navigate(`/student/courses/${course.id}/learn`)}
+                            className="flex-1 bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs sm:text-sm py-2.5 rounded-xl transition-all shadow-sm"
+                          >
+                            Continue Learning
+                          </button>
+                        ) : null}
+                        <button
+                          onClick={() => navigate(`/courses/${course.id}`)}
+                          className={`${
+                            isEnrolled ? 'px-4 bg-[#14323A] text-[#4DE2BD] border border-[#1D363E]' : 'w-full bg-[#14323A] text-[#4DE2BD]'
+                          } hover:bg-[#4DE2BD] hover:text-[#07181E] font-bold text-xs sm:text-sm py-2.5 rounded-xl transition-all duration-200`}
+                        >
+                          View Course
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
