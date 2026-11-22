@@ -1,11 +1,22 @@
-import { Link, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getCatalogCourseById } from '../data/courseCatalog';
 import { getMaterialsByCourse, MATERIAL_TYPES } from '../data/materialStorage';
 import { getQuizzesByCourse } from '../data/quizStorage';
+import { getCurrentSession } from '../data/authStorage.js';
+import { saveEnrollment } from '../data/enrollmentStorage.js';
+import { useStudentEnrollments } from '../hooks/useStudentEnrollments.js';
 
 export default function CourseDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const course = getCatalogCourseById(id);
+  const session = getCurrentSession();
+  const { enrollments } = useStudentEnrollments();
+  const [feedback, setFeedback] = useState(null);
+
+  const backLink = session?.role === 'student' ? '/student/browse' : '/courses';
+  const backLabel = session?.role === 'student' ? '← Back to Browse Courses' : '← Back to Courses';
 
   const materials = course ? getMaterialsByCourse(course.id) : [];
   const quizzes = course ? getQuizzesByCourse(course.id).filter((q) => q.status === 'Published') : [];
@@ -17,15 +28,40 @@ export default function CourseDetailsPage() {
           <p className="text-[#4DE2BD] text-xs font-semibold tracking-[0.2em] uppercase mb-3">Course unavailable</p>
           <h1 className="text-3xl font-black text-white tracking-tight mb-3">We couldn’t find that course.</h1>
           <p className="text-[#A9C0C7] text-sm leading-relaxed mb-6">The course may have been removed or the link is no longer valid.</p>
-          <Link to="/courses" className="inline-flex bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-sm px-5 py-3 rounded-xl transition-all">Back to Courses</Link>
+          <Link to={backLink} className="inline-flex bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-sm px-5 py-3 rounded-xl transition-all">
+            {session?.role === 'student' ? 'Back to Browse Courses' : 'Back to Courses'}
+          </Link>
         </div>
       </section>
     );
   }
 
+  const isEnrolled = enrollments?.some((e) => e.courseId === course.id);
+
+  const handleEnroll = () => {
+    if (!session?.email) {
+      navigate('/login');
+      return;
+    }
+    try {
+      const result = saveEnrollment({ studentEmail: session.email, courseId: course.id });
+      if (result.ok) {
+        setFeedback({ type: 'success', message: 'Enrolled successfully!' });
+      } else if (result.reason === 'duplicate') {
+        setFeedback({ type: 'info', message: 'You are already enrolled in this course.' });
+      } else {
+        setFeedback({ type: 'error', message: 'Enrollment failed. Please try again.' });
+      }
+    } catch {
+      setFeedback({ type: 'error', message: 'Enrollment failed. Please try again.' });
+    }
+  };
+
   return (
     <section className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 py-12 sm:py-16">
-      <Link to="/courses" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4DE2BD] hover:underline mb-7">← Back to Courses</Link>
+      <Link to={backLink} className="inline-flex items-center gap-2 text-sm font-semibold text-[#4DE2BD] hover:underline mb-7">
+        {backLabel}
+      </Link>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-7">
           {course.image && <img src={course.image} alt={course.title} className="w-full h-64 sm:h-80 object-cover rounded-2xl border border-[#1D363E] shadow-lg" />}
@@ -44,16 +80,51 @@ export default function CourseDetailsPage() {
             {course.level && <div className="flex justify-between gap-4"><dt className="text-[#A9C0C7]">Level</dt><dd className="text-white font-semibold text-right">{course.level}</dd></div>}
             {course.price && <div className="flex justify-between gap-4"><dt className="text-[#A9C0C7]">Price</dt><dd className="text-[#4DE2BD] font-bold">{course.price}</dd></div>}
           </dl>
-          {quizzes.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-[#1D363E]">
-              <Link
-                to="/student/quizzes"
-                className="w-full inline-flex items-center justify-center bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-xs py-3 rounded-xl transition-all shadow-md"
-              >
-                Attempt Course Quizzes ({quizzes.length})
+
+          <div className="mt-6 pt-6 border-t border-[#1D363E]">
+            {feedback && (
+              <div className={`mb-4 p-3 rounded-xl text-xs font-semibold border ${
+                feedback.type === 'success' ? 'bg-[#143C3A] text-[#4DE2BD] border-[#4DE2BD]/30' :
+                feedback.type === 'info' ? 'bg-sky-950/40 text-sky-400 border-sky-400/30' :
+                'bg-rose-950/40 text-rose-400 border-rose-400/30'
+              }`}>
+                {feedback.message}
+              </div>
+            )}
+
+            {!session?.email ? (
+              <Link to="/login" className="block text-center w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md">
+                Login to Enroll
               </Link>
-            </div>
-          )}
+            ) : isEnrolled ? (
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => navigate(`/student/courses/${course.id}/learn`)}
+                  className="w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md"
+                >
+                  Continue Learning
+                </button>
+                <Link to="/student/courses" className="block text-center w-full bg-[#14323A] hover:bg-[#1D363E] text-[#4DE2BD] font-bold py-2.5 px-5 rounded-xl border border-[#1D363E] transition-all text-xs">
+                  View in My Courses
+                </Link>
+              </div>
+            ) : (
+              <button onClick={handleEnroll} className="w-full bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold py-3 px-5 rounded-xl transition-all shadow-md">
+                Enroll Now
+              </button>
+            )}
+
+            {quizzes.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-[#1D363E]/60">
+                <Link
+                  to="/student/quizzes"
+                  className="w-full inline-flex items-center justify-center bg-[#14323A] hover:bg-[#4DE2BD] hover:text-[#07181E] text-[#4DE2BD] font-bold text-xs py-2.5 rounded-xl border border-[#4DE2BD]/30 transition-all"
+                >
+                  Attempt Course Quizzes ({quizzes.length})
+                </Link>
+              </div>
+            )}
+          </div>
         </aside>
       </div>
 
@@ -135,8 +206,7 @@ export default function CourseDetailsPage() {
         </div>
       )}
 
-      {/* Legacy Syllabus if available */}
-      {course.syllabus?.length > 0 && !course.lessons?.length && (
+      {course.syllabus?.length > 0 && (
         <div className="mt-10 bg-[#0D2229]/95 border border-[#1D363E] rounded-2xl p-6 sm:p-8 shadow-lg">
           <h2 className="text-xl font-bold text-white mb-5">Course Syllabus</h2>
           <div className="space-y-5">

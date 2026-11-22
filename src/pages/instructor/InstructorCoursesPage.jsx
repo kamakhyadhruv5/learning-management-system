@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import InstructorSidebar from '../../components/instructor/InstructorSidebar';
 import InstructorHeader from '../../components/instructor/InstructorHeader';
 import StatCard from '../../components/student/StatCard';
-import { getStoredCourses, updateStoredCourse, deleteStoredCourse, COURSE_CATEGORIES } from '../../data/courseStorage';
+import { getStoredCourses, updateStoredCourse, deleteStoredCourse, getStoredCategories, COURSE_CATEGORIES } from '../../data/courseStorage';
 
 export default function InstructorCoursesPage() {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ export default function InstructorCoursesPage() {
   const [instructorName, setInstructorName] = useState('Instructor');
   const [currentUserId, setCurrentUserId] = useState('');
   const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState(() => getStoredCategories());
   const [activeTab, setActiveTab] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
@@ -35,11 +36,18 @@ export default function InstructorCoursesPage() {
 
     const loadCourses = () => {
       setCourses(getStoredCourses());
+      setCategories(getStoredCategories());
     };
 
     loadCourses();
     window.addEventListener('instructor_courses_updated', loadCourses);
-    return () => window.removeEventListener('instructor_courses_updated', loadCourses);
+    window.addEventListener('course_categories_updated', loadCourses);
+    window.addEventListener('storage', loadCourses);
+    return () => {
+      window.removeEventListener('instructor_courses_updated', loadCourses);
+      window.removeEventListener('course_categories_updated', loadCourses);
+      window.removeEventListener('storage', loadCourses);
+    };
   }, []);
 
   useEffect(() => {
@@ -225,7 +233,7 @@ export default function InstructorCoursesPage() {
                   className="w-full sm:w-auto bg-[#07181E] border border-[#1D363E] text-xs sm:text-sm text-white rounded-xl px-3.5 py-2.5 pr-8 appearance-none focus:outline-none focus:border-[#4DE2BD] transition-colors cursor-pointer"
                 >
                   <option value="All">All Categories</option>
-                  {COURSE_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>

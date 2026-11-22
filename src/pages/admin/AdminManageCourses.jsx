@@ -3,17 +3,18 @@ import AdminSidebar from '../../components/admin/AdminSidebar';
 import AdminHeader from '../../components/admin/AdminHeader';
 import StatCard from '../../components/student/StatCard';
 import {
-  getStoredCourses,
-  addStoredCourse,
-  updateStoredCourse,
-  deleteStoredCourse,
-  COURSE_CATEGORIES,
-} from '../../data/courseStorage';
+  getAllCatalogCourses,
+  addCatalogCourse,
+  updateCatalogCourse,
+  deleteCatalogCourse,
+} from '../../data/courseCatalog';
+import { getStoredCategories } from '../../data/courseStorage';
 
 export default function AdminManageCourses() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [adminName, setAdminName] = useState('Admin');
   const [courses, setCourses] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -32,20 +33,30 @@ export default function AdminManageCourses() {
     lessonsCount: 10,
     duration: '20 hours',
     level: 'All Levels',
+    price: 'Free',
     description: '',
   });
+  const [formErrors, setFormErrors] = useState({});
+
+  const loadData = () => {
+    setCourses(getAllCatalogCourses());
+    setCategories(getStoredCategories());
+  };
 
   useEffect(() => {
     const storedAdmin = JSON.parse(localStorage.getItem('currentUser') || '{}');
     if (storedAdmin.fullName) setAdminName(storedAdmin.fullName);
     else if (storedAdmin.email) setAdminName(storedAdmin.email.split('@')[0]);
 
-    const loadCourses = () => {
-      setCourses(getStoredCourses());
+    loadData();
+    window.addEventListener('instructor_courses_updated', loadData);
+    window.addEventListener('course_categories_updated', loadData);
+    window.addEventListener('storage', loadData);
+    return () => {
+      window.removeEventListener('instructor_courses_updated', loadData);
+      window.removeEventListener('course_categories_updated', loadData);
+      window.removeEventListener('storage', loadData);
     };
-    loadCourses();
-    window.addEventListener('instructor_courses_updated', loadCourses);
-    return () => window.removeEventListener('instructor_courses_updated', loadCourses);
   }, []);
 
   const totalCoursesCount = courses.length;
@@ -66,56 +77,154 @@ export default function AdminManageCourses() {
     return matchesStatus && matchesCategory && matchesSearch;
   });
 
+  const validateCourseForm = (data, isEdit = false, currentCourseId = null) => {
+    const errors = {};
+    const trimmedTitle = (data.title || '').trim();
+    const trimmedInstructor = (data.instructor || '').trim();
+
+    if (!trimmedTitle) {
+      errors.title = 'Course title is required.';
+    } else if (trimmedTitle.length < 3) {
+      errors.title = 'Course title must be at least 3 characters.';
+    } else {
+      const allCourses = getAllCatalogCourses();
+      const isDuplicate = allCourses.some((c) => {
+        if (isEdit && String(c.id) === String(currentCourseId)) return false;
+        return c.title?.trim().toLowerCase() === trimmedTitle.toLowerCase();
+      });
+      if (isDuplicate) {
+        errors.title = `A course with the title "${trimmedTitle}" already exists. Please choose a distinctive title.`;
+      }
+    }
+
+    if (!trimmedInstructor) {
+      errors.instructor = 'Instructor name is required.';
+    }
+
+    if (!data.category) {
+      errors.category = 'Please select a category.';
+    }
+
+    // Numeric validation: lessonsCount
+    const lessonsRaw = data.lessonsCount;
+    if (lessonsRaw === '' || lessonsRaw === undefined || lessonsRaw === null) {
+      errors.lessonsCount = 'Lessons count is required.';
+    } else {
+      const lessonsNum = Number(lessonsRaw);
+      if (isNaN(lessonsNum) || !Number.isInteger(lessonsNum) || lessonsNum < 1) {
+        errors.lessonsCount = 'Lessons count must be a positive whole number (minimum 1).';
+      } else if (lessonsNum > 500) {
+        errors.lessonsCount = 'Lessons count cannot exceed 500.';
+      }
+    }
+
+    // Numeric validation: studentsCount
+    if (data.studentsCount !== '' && data.studentsCount !== undefined && data.studentsCount !== null) {
+      const studentsNum = Number(data.studentsCount);
+      if (isNaN(studentsNum) || studentsNum < 0) {
+        errors.studentsCount = 'Students count must be a non-negative number.';
+      }
+    }
+
+    // Numeric validation: price
+    if (data.price !== '' && data.price !== undefined && data.price !== null) {
+      const trimmedPrice = String(data.price).trim();
+      if (trimmedPrice.toLowerCase() !== 'free') {
+        const cleanPrice = trimmedPrice.replace(/^\$/, '');
+        const priceNum = Number(cleanPrice);
+        if (isNaN(priceNum) || priceNum < 0) {
+          errors.price = 'Price must be a valid non-negative amount or "Free".';
+        }
+      }
+    }
+
+    return {
+      errors,
+      isValid: Object.keys(errors).length === 0,
+      trimmedTitle,
+      trimmedInstructor,
+    };
+  };
+
   const handleOpenAddModal = () => {
     setFormData({
       title: '',
-      instructor: adminName || 'Dr. Sarah Khan',
-      category: 'Web Development',
+      instructor: adminName || 'Staff Instructor',
+      category: categories[0] || 'Web Development',
       status: 'Published',
       studentsCount: 0,
       lessonsCount: 12,
       duration: '24 hours',
       level: 'All Levels',
+      price: 'Free',
       description: '',
     });
+    setFormErrors({});
     setIsAddModalOpen(true);
   };
 
   const handleSaveAddCourse = (e) => {
     e.preventDefault();
-    if (!formData.title) return;
-    addStoredCourse(formData);
-    setCourses(getStoredCourses());
+    const { errors, isValid, trimmedTitle, trimmedInstructor } = validateCourseForm(formData, false);
+    if (!isValid) {
+      setFormErrors(errors);
+      return;
+    }
+    addCatalogCourse({
+      ...formData,
+      title: trimmedTitle,
+      instructor: trimmedInstructor,
+      lessonsCount: Number(formData.lessonsCount) || 1,
+      studentsCount: Number(formData.studentsCount) || 0,
+      price: formData.price?.trim() || 'Free',
+    });
+    setCourses(getAllCatalogCourses());
     setIsAddModalOpen(false);
+    setFormErrors({});
   };
 
   const handleOpenEditModal = (course) => {
     setEditingCourse(course);
     setFormData({
       title: course.title || '',
-      instructor: course.instructor || 'Dr. Sarah Khan',
-      category: course.category || 'Web Development',
+      instructor: course.instructor || adminName || 'Staff Instructor',
+      category: course.category || (categories[0] || 'Web Development'),
       status: course.status || 'Published',
-      studentsCount: course.studentsCount || 0,
-      lessonsCount: course.lessonsCount || 10,
+      studentsCount: course.studentsCount ?? 0,
+      lessonsCount: course.lessonsCount ?? 10,
       duration: course.duration || '20 hours',
       level: course.level || 'All Levels',
+      price: course.price || 'Free',
       description: course.description || '',
     });
+    setFormErrors({});
   };
 
   const handleSaveEditCourse = (e) => {
     e.preventDefault();
     if (!editingCourse) return;
-    updateStoredCourse(editingCourse.id, formData);
-    setCourses(getStoredCourses());
+    const { errors, isValid, trimmedTitle, trimmedInstructor } = validateCourseForm(formData, true, editingCourse.id);
+    if (!isValid) {
+      setFormErrors(errors);
+      return;
+    }
+    updateCatalogCourse(editingCourse.id, {
+      ...formData,
+      title: trimmedTitle,
+      instructor: trimmedInstructor,
+      lessonsCount: Number(formData.lessonsCount) || 1,
+      studentsCount: Number(formData.studentsCount) || 0,
+      price: formData.price?.trim() || editingCourse.price || 'Free',
+    });
+    setCourses(getAllCatalogCourses());
     setEditingCourse(null);
+    setFormErrors({});
   };
 
   const handleDeleteCourse = () => {
     if (!deletingCourse) return;
-    deleteStoredCourse(deletingCourse.id);
-    setCourses(getStoredCourses());
+    deleteCatalogCourse(deletingCourse.id);
+    setCourses(getAllCatalogCourses());
     setDeletingCourse(null);
   };
 
@@ -219,7 +328,7 @@ export default function AdminManageCourses() {
                   className="w-full sm:w-auto bg-[#07181E] border border-[#1D363E] text-xs sm:text-sm text-white rounded-xl px-3.5 py-2.5 pr-8 appearance-none focus:outline-none focus:border-[#4DE2BD] transition-colors cursor-pointer"
                 >
                   <option value="All">All Categories</option>
-                  {COURSE_CATEGORIES.map((cat) => (
+                  {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
                     </option>
@@ -411,6 +520,10 @@ export default function AdminManageCourses() {
                 <span className="text-[#A9C0C7]">Duration</span>
                 <span className="font-semibold text-white">{viewingCourse.duration || '20 hours'}</span>
               </div>
+              <div className="flex justify-between border-b border-[#1D363E]/60 pb-2">
+                <span className="text-[#A9C0C7]">Price</span>
+                <span className="font-semibold text-[#4DE2BD]">{viewingCourse.price || 'Free'}</span>
+              </div>
               <div className="flex justify-between">
                 <span className="text-[#A9C0C7]">Difficulty Level</span>
                 <span className="font-semibold text-white">{viewingCourse.level || 'All Levels'}</span>
@@ -457,39 +570,73 @@ export default function AdminManageCourses() {
               {editingCourse ? 'Edit Course' : 'Add New Course'}
             </h3>
 
+            {Object.keys(formErrors).length > 0 && (
+              <div className="mb-4 bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs p-3 rounded-xl flex items-start gap-2">
+                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="space-y-0.5">
+                  {Object.values(formErrors).map((msg, idx) => (
+                    <p key={idx}>{msg}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <form onSubmit={editingCourse ? handleSaveEditCourse : handleSaveAddCourse} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Course Title</label>
+                <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Course Title *</label>
                 <input
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value });
+                    if (formErrors.title) setFormErrors({ ...formErrors, title: null });
+                  }}
                   placeholder="e.g. Modern Web Architecture"
-                  className="w-full bg-[#07181E] border border-[#1D363E] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]"
+                  className={`w-full bg-[#07181E] border ${
+                    formErrors.title ? 'border-rose-500' : 'border-[#1D363E]'
+                  } rounded-xl px-4 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]`}
                 />
+                {formErrors.title && (
+                  <p className="text-rose-400 text-xs mt-1">{formErrors.title}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Instructor</label>
+                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Instructor *</label>
                   <input
                     type="text"
                     required
                     value={formData.instructor}
-                    onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, instructor: e.target.value });
+                      if (formErrors.instructor) setFormErrors({ ...formErrors, instructor: null });
+                    }}
                     placeholder="Instructor Name"
-                    className="w-full bg-[#07181E] border border-[#1D363E] rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]"
+                    className={`w-full bg-[#07181E] border ${
+                      formErrors.instructor ? 'border-rose-500' : 'border-[#1D363E]'
+                    } rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]`}
                   />
+                  {formErrors.instructor && (
+                    <p className="text-rose-400 text-xs mt-1">{formErrors.instructor}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Category</label>
+                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Category *</label>
                   <select
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full bg-[#07181E] border border-[#1D363E] rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]"
+                    onChange={(e) => {
+                      setFormData({ ...formData, category: e.target.value });
+                      if (formErrors.category) setFormErrors({ ...formErrors, category: null });
+                    }}
+                    className={`w-full bg-[#07181E] border ${
+                      formErrors.category ? 'border-rose-500' : 'border-[#1D363E]'
+                    } rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]`}
                   >
-                    {COURSE_CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                       <option key={cat} value={cat}>
                         {cat}
                       </option>
@@ -511,13 +658,61 @@ export default function AdminManageCourses() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Lessons Count</label>
+                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Lessons Count *</label>
                   <input
                     type="number"
+                    min="1"
                     value={formData.lessonsCount}
-                    onChange={(e) => setFormData({ ...formData, lessonsCount: Number(e.target.value) })}
-                    className="w-full bg-[#07181E] border border-[#1D363E] rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]"
+                    onChange={(e) => {
+                      setFormData({ ...formData, lessonsCount: e.target.value });
+                      if (formErrors.lessonsCount) setFormErrors({ ...formErrors, lessonsCount: null });
+                    }}
+                    className={`w-full bg-[#07181E] border ${
+                      formErrors.lessonsCount ? 'border-rose-500' : 'border-[#1D363E]'
+                    } rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]`}
                   />
+                  {formErrors.lessonsCount && (
+                    <p className="text-rose-400 text-xs mt-1">{formErrors.lessonsCount}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Price (USD)</label>
+                  <input
+                    type="text"
+                    value={formData.price}
+                    onChange={(e) => {
+                      setFormData({ ...formData, price: e.target.value });
+                      if (formErrors.price) setFormErrors({ ...formErrors, price: null });
+                    }}
+                    placeholder="e.g. Free or 49.99"
+                    className={`w-full bg-[#07181E] border ${
+                      formErrors.price ? 'border-rose-500' : 'border-[#1D363E]'
+                    } rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]`}
+                  />
+                  {formErrors.price && (
+                    <p className="text-rose-400 text-xs mt-1">{formErrors.price}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#A9C0C7] mb-1">Enrolled Students</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.studentsCount}
+                    onChange={(e) => {
+                      setFormData({ ...formData, studentsCount: e.target.value });
+                      if (formErrors.studentsCount) setFormErrors({ ...formErrors, studentsCount: null });
+                    }}
+                    className={`w-full bg-[#07181E] border ${
+                      formErrors.studentsCount ? 'border-rose-500' : 'border-[#1D363E]'
+                    } rounded-xl px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-[#4DE2BD]`}
+                  />
+                  {formErrors.studentsCount && (
+                    <p className="text-rose-400 text-xs mt-1">{formErrors.studentsCount}</p>
+                  )}
                 </div>
               </div>
 
