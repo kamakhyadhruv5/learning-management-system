@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LMS - Learning Anytime, Anywhere</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgMain: '#07181E',
+            bgDarker: '#051318',
+            bgCard: '#0D2229',
+            borderCard: '#1D363E',
+            borderCardHover: '#29444C',
+            brand: {
+              DEFAULT: '#4DE2BD',
+              hover: '#41D1AC',
+              light: '#65ECCB',
+              dark: '#143C3A',
+            },
+            muted: '#A9C0C7',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: #07181E;
+      color: #FFFFFF;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="bg-[#07181E] text-white selection:bg-[#4DE2BD] selection:text-[#07181E]">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    function Logo() {
+      return (
+        <div className="flex items-center gap-3 cursor-pointer group select-none">
+          <div className="relative w-9 h-8 flex items-center justify-center">
+            <svg
+              viewBox="0 0 36 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-9 h-8 transform transition-transform group-hover:scale-105 duration-200"
+            >
+              <path
+                d="M17 5.5C12 3.5 5 4 2 6V26C5 24 12 23.5 17 25.5V5.5Z"
+                fill="#4DE2BD"
+              />
+              <path
+                d="M6 7C9.5 5.8 14 6.2 17 7.5V26C14 24.6 9.5 24.2 6 25.5V7Z"
+                fill="#36C29F"
+                opacity="0.75"
+              />
+              <path
+                d="M19 5.5C24 3.5 31 4 34 6V26C31 24 24 23.5 19 25.5V5.5Z"
+                fill="#4DE2BD"
+              />
+              <path
+                d="M19 7.5C22 6.2 26.5 5.8 30 7V25.5C26.5 24.2 22 24.6 19 26V7.5Z"
+                fill="#6EF4D2"
+                opacity="0.65"
+              />
+              <path
+                d="M18 4.5V27"
+                stroke="#07181E"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+          <span className="text-2xl font-extrabold tracking-wide text-white font-sans">
+            LMS
+          </span>
+        </div>
+      );
+    }
+
+    function Navbar() {
+      return (
+        <header className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 h-[88px] flex items-center justify-between relative z-30">
+          <div className="flex-shrink-0">
+            <Logo />
+          </div>
+
+          <nav className="hidden md:flex items-center space-x-12 text-[15px] font-medium">
+            <div className="relative flex flex-col items-center">
+              <a
+                href="#home"
+                className="text-[#4DE2BD] transition-colors py-1 font-semibold"
+              >
+                Home
+              </a>
+              <span className="w-8 h-[3px] bg-[#4DE2BD] rounded-full absolute -bottom-1"></span>
+            </div>
+
+            <a
+              href="#courses"
+              className="text-[#A9C0C7] hover:text-white transition-colors duration-200"
+            >
+              Courses
+            </a>
+
+            <a
+              href="#about"
+              className="text-[#A9C0C7] hover:text-white transition-colors duration-200"
+            >
+              About
+            </a>
+
+            <a
+              href="#contact"
+              className="text-[#A9C0C7] hover:text-white transition-colors duration-200"
+            >
+              Contact
+            </a>
+          </nav>
+
+          <div className="flex items-center space-x-7">
+            <button
+              aria-label="Search"
+              className="text-[#A9C0C7] hover:text-white transition-colors p-1.5 focus:outline-none"
+            >
+              <svg
+                className="w-[22px] h-[22px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </button>
+
+            <button className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-[15px] px-8 py-2.5 rounded-full transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-sm">
+              Login
+            </button>
+          </div>
+        </header>
+      );
+    }
+
+    function HeroIllustration() {
+      return (
+        <div className="relative w-full max-w-[650px] xl:max-w-[700px] aspect-[1.25/1] flex items-center justify-end select-none">
+          <svg
+            viewBox="0 0 640 500"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-full object-contain overflow-visible"
+          >
+            <defs>
+              <radialGradient id="backdropGlow" cx="60%" cy="45%" r="55%">
+                <stop offset="0%" stopColor="#184b45" stopOpacity="0.45" />
+                <stop offset="55%" stopColor="#0f302d" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="#07181E" stopOpacity="0" />
+              </radialGradient>
+
+              <linearGradient id="mainCircleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#13353c" />
+                <stop offset="100%" stopColor="#0a1d22" />
+              </linearGradient>
+
+              <linearGradient id="subCircleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#0f2b31" />
+                <stop offset="100%" stopColor="#061519" />
+              </linearGradient>
+
+              <linearGradient id="playerFrameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#193640" />
+                <stop offset="100%" stopColor="#10232a" />
+              </linearGradient>
+
+              <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#1e404b" />
+                <stop offset="100%" stopColor="#12272f" />
+              </linearGradient>
+
+              <linearGradient id="book1Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#289b74" />
+                <stop offset="40%" stopColor="#4de2bd" />
+                <stop offset="100%" stopColor="#238f6b" />
+              </linearGradient>
+
+              <linearGradient id="book2Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#1c7c5c" />
+                <stop offset="40%" stopColor="#30b489" />
+                <stop offset="100%" stopColor="#186e51" />
+              </linearGradient>
+
+              <linearGradient id="book3Grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#125c43" />
+                <stop offset="40%" stopColor="#228e69" />
+                <stop offset="100%" stopColor="#0f4e39" />
+              </linearGradient>
+
+              <linearGradient id="leafGrad1" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#175445" />
+                <stop offset="100%" stopColor="#4de2bd" />
+              </linearGradient>
+
+              <linearGradient id="leafGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#124438" />
+                <stop offset="100%" stopColor="#35c89f" />
+              </linearGradient>
+
+              <filter id="cardShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="12" stdDeviation="12" floodColor="#000000" floodOpacity="0.45" />
+              </filter>
+
+              <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#000000" floodOpacity="0.35" />
+              </filter>
+            </defs>
+
+            <circle cx="390" cy="240" r="230" fill="url(#backdropGlow)" />
+
+            <g opacity="0.95">
+              <circle cx="450" cy="210" r="165" fill="url(#mainCircleGrad)" />
+              <circle cx="320" cy="270" r="95" fill="url(#subCircleGrad)" />
+            </g>
+
+            <g transform="translate(190, 35)" filter="url(#cardShadow)">
+              <rect
+                x="0"
+                y="0"
+                width="180"
+                height="118"
+                rx="14"
+                fill="url(#playerFrameGrad)"
+                stroke="#234c59"
+                strokeWidth="2"
+              />
+              <circle cx="16" cy="14" r="3.2" fill="#4DE2BD" />
+              <circle cx="26" cy="14" r="3.2" fill="#4DE2BD" opacity="0.8" />
+              <circle cx="36" cy="14" r="3.2" fill="#4DE2BD" opacity="0.8" />
+
+              <rect
+                x="13"
+                y="27"
+                width="154"
+                height="70"
+                rx="8"
+                fill="url(#screenGrad)"
+              />
+
+              <circle cx="90" cy="62" r="16" fill="#4DE2BD" filter="url(#softShadow)" />
+              <polygon points="86,54 98,62 86,70" fill="#10232a" />
+
+              <rect x="13" y="103" width="154" height="4" rx="2" fill="#1c3d47" />
+              <rect x="13" y="103" width="48" height="4" rx="2" fill="#4DE2BD" />
+            </g>
+
+            <g transform="translate(415, 30) rotate(-6)" filter="url(#softShadow)">
+              <path
+                d="M32 38C32 46 54 52 68 52C82 52 104 46 104 38V30C104 30 82 36 68 36C54 36 32 30 32 30V38Z"
+                fill="#152636"
+              />
+              <polygon
+                points="68,10 130,30 68,50 6,30"
+                fill="#233a4e"
+                stroke="#2e4d6a"
+                strokeWidth="1.5"
+              />
+              <polygon
+                points="68,12 126,30 68,48 10,30"
+                fill="#1c3042"
+              />
+              <ellipse cx="68" cy="30" rx="3.5" ry="2" fill="#4DE2BD" />
+              <path
+                d="M68 30 Q88 42 86 65"
+                stroke="#4DE2BD"
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+              />
+              <polygon
+                points="84,64 88,64 90,82 82,82"
+                fill="#4DE2BD"
+              />
+            </g>
+
+            <g id="bookStack" transform="translate(245, 265)">
+              <g transform="translate(0, 52)" filter="url(#softShadow)">
+                <rect x="0" y="0" width="170" height="25" rx="12.5" fill="url(#book3Grad)" />
+                <rect
+                  x="30"
+                  y="3.5"
+                  width="110"
+                  height="18"
+                  rx="9"
+                  fill="#FFFFFF"
+                />
+                <text
+                  x="85"
+                  y="17"
+                  textAnchor="middle"
+                  fill="#07181E"
+                  fontSize="9.5"
+                  fontWeight="900"
+                  fontFamily="system-ui, sans-serif"
+                  letterSpacing="1.5"
+                >
+                  GROW
+                </text>
+              </g>
+
+              <g transform="translate(5, 26)" filter="url(#softShadow)">
+                <rect x="0" y="0" width="162" height="25" rx="12.5" fill="url(#book2Grad)" />
+                <rect
+                  x="26"
+                  y="3.5"
+                  width="110"
+                  height="18"
+                  rx="9"
+                  fill="#FFFFFF"
+                />
+                <text
+                  x="81"
+                  y="17"
+                  textAnchor="middle"
+                  fill="#07181E"
+                  fontSize="9.5"
+                  fontWeight="900"
+                  fontFamily="system-ui, sans-serif"
+                  letterSpacing="1.2"
+                >
+                  PRACTICE
+                </text>
+              </g>
+
+              <g transform="translate(10, 0)" filter="url(#softShadow)">
+                <rect x="0" y="0" width="154" height="25" rx="12.5" fill="url(#book1Grad)" />
+                <rect
+                  x="22"
+                  y="3.5"
+                  width="110"
+                  height="18"
+                  rx="9"
+                  fill="#FFFFFF"
+                />
+                <text
+                  x="77"
+                  y="17"
+                  textAnchor="middle"
+                  fill="#07181E"
+                  fontSize="9.5"
+                  fontWeight="900"
+                  fontFamily="system-ui, sans-serif"
+                  letterSpacing="1.5"
+                >
+                  LEARN
+                </text>
+              </g>
+            </g>
+
+            <g id="student" transform="translate(255, 125)">
+              <ellipse cx="80" cy="140" rx="45" ry="7" fill="#08171c" opacity="0.6" />
+
+              <path
+                d="M60 74 C55 90 52 112 52 138 L96 138 C98 112 96 90 92 74 Z"
+                fill="#1b6e56"
+              />
+
+              <path
+                d="M58 74 C50 80 40 90 38 100 C36 108 48 116 62 110 L62 96 Z"
+                fill="#155845"
+              />
+
+              <path
+                d="M90 76 C100 86 108 97 98 110 C90 116 74 117 62 112"
+                stroke="#1b6e56"
+                strokeWidth="13"
+                strokeLinecap="round"
+                fill="none"
+              />
+
+              <ellipse cx="62" cy="112" rx="6" ry="4.5" fill="#f8b48f" />
+              <ellipse cx="68" cy="114" rx="6" ry="4.5" fill="#e29b76" />
+
+              <path
+                d="M52 132 C45 132 18 142 12 168 C8 185 -4 204 -8 212 C-10 216 -2 220 6 218 C16 214 26 198 30 183 C36 163 55 150 68 144 Z"
+                fill="#182736"
+              />
+
+              <path
+                d="M65 132 C60 140 38 150 30 175 C24 193 12 216 8 224 C6 229 14 232 22 228 C32 222 44 203 48 185 C55 163 80 150 92 138 Z"
+                fill="#1f3244"
+              />
+
+              <g transform="translate(6, 216) rotate(6)">
+                <path
+                  d="M0 8 C2 4 14 2 24 6 C30 8 36 12 40 16 C38 18 28 20 18 20 C8 20 0 16 0 8 Z"
+                  fill="#182736"
+                />
+                <rect x="-2" y="16" width="42" height="6" rx="3" fill="#E2E8F0" />
+                <path d="M4 4 C6 2 10 2 12 5" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
+              </g>
+
+              <g transform="translate(-14, 202) rotate(4)">
+                <path
+                  d="M0 8 C2 4 14 2 24 6 C28 8 34 12 36 16 C34 18 26 20 16 20 C8 20 0 16 0 8 Z"
+                  fill="#131e2b"
+                />
+                <rect x="-2" y="16" width="38" height="5.5" rx="2.7" fill="#CBD5E1" />
+                <path d="M4 4 C6 2 10 2 12 5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" />
+              </g>
+
+              <g transform="translate(25, 98)">
+                <path d="M12 28 L58 26 L62 30 L10 32 Z" fill="#1e293b" />
+                <polygon points="26,4 58,0 52,26 20,28" fill="#0f172a" stroke="#334155" strokeWidth="1" />
+                <circle cx="39" cy="14" r="2.5" fill="#4DE2BD" opacity="0.9" />
+              </g>
+
+              <rect x="68" y="58" width="10" height="17" rx="4" fill="#e29b76" />
+              <circle cx="73" cy="46" r="14" fill="#f8b48f" />
+              <ellipse cx="64" cy="47" rx="2.5" ry="3.5" fill="#f8b48f" />
+              <circle cx="74" cy="43" r="1.8" fill="#1e293b" />
+              <path d="M72 38 Q75 37 78 39" stroke="#1e293b" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M74 48 Q78 51 81 47" stroke="#b91c1c" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+              <path d="M78 43 L81 46 L78 47" stroke="#e29b76" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+              <path
+                d="M60 44 C58 35 64 27 75 27 C84 27 88 32 88 38 C88 41 84 41 82 40 C78 39 74 33 66 38 C63 40 62 44 60 44 Z"
+                fill="#111827"
+              />
+              <path
+                d="M60 42 C59 46 62 52 64 54 C63 49 63 45 64 42 Z"
+                fill="#111827"
+              />
+            </g>
+
+            <g id="plant" transform="translate(440, 230)">
+              <ellipse cx="38" cy="170" rx="22" ry="6" fill="#061215" opacity="0.8" />
+
+              <path
+                d="M38 120 Q10 90 2 60 Q20 70 38 110 Z"
+                fill="url(#leafGrad2)"
+              />
+              <path
+                d="M38 110 Q15 60 22 15 Q38 45 40 100 Z"
+                fill="url(#leafGrad1)"
+              />
+              <path
+                d="M38 100 Q40 30 48 -10 Q58 30 42 95 Z"
+                fill="url(#leafGrad1)"
+              />
+              <path
+                d="M40 105 Q65 40 78 20 Q70 60 42 110 Z"
+                fill="url(#leafGrad2)"
+              />
+              <path
+                d="M40 115 Q75 80 82 55 Q72 90 42 120 Z"
+                fill="url(#leafGrad1)"
+              />
+
+              <path d="M38 125 L38 95" stroke="#165947" strokeWidth="2.5" strokeLinecap="round" />
+              <path d="M39 125 L46 95" stroke="#165947" strokeWidth="2.5" strokeLinecap="round" />
+
+              <polygon
+                points="24,120 52,120 46,165 30,165"
+                fill="#1e293b"
+                stroke="#334155"
+                strokeWidth="1.5"
+              />
+              <rect x="20" y="116" width="36" height="6" rx="2" fill="#2d3c4e" />
+            </g>
+          </svg>
+        </div>
+      );
+    }
+
+    function Hero() {
+      return (
+        <section className="relative w-full max-w-[1380px] mx-auto px-6 sm:px-10 pt-4 pb-6 lg:pt-8 lg:pb-8 flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-4">
+          <div className="w-full lg:w-[54%] z-10">
+            <p className="text-[#A9C0C7] text-[12px] sm:text-[13px] font-semibold tracking-[0.22em] uppercase mb-3">
+              Learning Anytime, Anywhere
+            </p>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-[56px] xl:text-[64px] font-black text-white tracking-tight leading-tight lg:whitespace-nowrap mb-4">
+              Learn. <span className="text-[#4DE2BD]">Grow.</span> Succeed.
+            </h1>
+
+            <p className="text-[#A9C0C7] text-base sm:text-[19px] lg:text-[21px] font-normal leading-snug max-w-lg mb-7">
+              Your complete learning management platform for modern education.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4 mb-8">
+              <button className="bg-[#4DE2BD] hover:bg-[#41D1AC] text-[#07181E] font-bold text-[15px] px-7 py-3 rounded-full flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-glow-brand transform hover:translate-y-[-1px] active:translate-y-[0px]">
+                <span>Explore Courses</span>
+                <span className="text-base leading-none">→</span>
+              </button>
+
+              <button className="bg-transparent border-[1.5px] border-[#4DE2BD] text-[#4DE2BD] hover:bg-[#4DE2BD]/10 font-bold text-[15px] px-8 py-3 rounded-full transition-all duration-200">
+                Get Started
+              </button>
+            </div>
+
+            <div className="flex items-center space-x-12 sm:space-x-16">
+              <div>
+                <div className="text-2xl sm:text-[28px] font-extrabold text-white tracking-tight leading-none">
+                  10K+
+                </div>
+                <div className="text-xs sm:text-[13px] text-[#A9C0C7] font-medium mt-1">
+                  Students
+                </div>
+              </div>
+
+              <div>
+                <div className="text-2xl sm:text-[28px] font-extrabold text-white tracking-tight leading-none">
+                  500+
+                </div>
+                <div className="text-xs sm:text-[13px] text-[#A9C0C7] font-medium mt-1">
+                  Courses
+                </div>
+              </div>
+
+              <div>
+                <div className="text-2xl sm:text-[28px] font-extrabold text-white tracking-tight leading-none">
+                  50+
+                </div>
+                <div className="text-xs sm:text-[13px] text-[#A9C0C7] font-medium mt-1">
+                  Instructors
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full lg:w-[46%] flex justify-center lg:justify-end items-center relative">
+            <HeroIllustration />
+          </div>
+        </section>
+      );
+    }
+
+    const features = [
+      {
+        icon: (
+          <svg
+            className="w-[22px] h-[22px] text-[#4DE2BD]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+        ),
+        title: 'Rich Courses',
+        description: 'Access a wide range of courses and materials.',
+      },
+      {
+        icon: (
+          <svg
+            className="w-[22px] h-[22px] text-[#4DE2BD]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        ),
+        title: 'Learn at Your Pace',
+        description: 'Study anytime, anywhere at your own speed.',
+      },
+      {
+        icon: (
+          <svg
+            className="w-[22px] h-[22px] text-[#4DE2BD]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="9" y1="13" x2="15" y2="13" />
+            <line x1="9" y1="17" x2="15" y2="17" />
+          </svg>
+        ),
+        title: 'Assessments',
+        description: 'Take quizzes and evaluate your knowledge.',
+      },
+      {
+        icon: (
+          <svg
+            className="w-[22px] h-[22px] text-[#4DE2BD]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        ),
+        title: 'Track Progress',
+        description: 'Monitor your learning journey and achievements.',
+      },
+    ];
+
+    function Features() {
+      return (
+        <section className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 pt-2 pb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="bg-[#0D2229]/95 border border-[#1D363E] rounded-2xl p-6 sm:p-7 hover:border-[#29444C] hover:bg-[#10272F] transition-all duration-200 group cursor-pointer shadow-lg"
+              >
+                <div className="w-12 h-12 rounded-full bg-[#14323A] flex items-center justify-center mb-5 group-hover:scale-105 group-hover:bg-[#193F4A] transition-all duration-200">
+                  {feature.icon}
+                </div>
+
+                <h3 className="text-white text-[17px] font-bold mb-2 tracking-tight">
+                  {feature.title}
+                </h3>
+
+                <p className="text-[#A9C0C7] text-[13px] sm:text-[14px] leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    function Footer() {
+      return (
+        <footer className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 pt-4 pb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center">
+            <Logo />
+          </div>
+
+          <nav className="flex items-center space-x-10 text-[14px] font-medium text-[#A9C0C7]">
+            <a href="#home" className="hover:text-white transition-colors">
+              Home
+            </a>
+            <a href="#courses" className="hover:text-white transition-colors">
+              Courses
+            </a>
+            <a href="#about" className="hover:text-white transition-colors">
+              About
+            </a>
+            <a href="#contact" className="hover:text-white transition-colors">
+              Contact
+            </a>
+          </nav>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4 text-[13px] text-[#A9C0C7]">
+            <div className="flex items-center space-x-3.5">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[#A9C0C7] hover:text-white hover:bg-[#14323A] transition-all"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                </svg>
+              </a>
+
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[#A9C0C7] hover:text-white hover:bg-[#14323A] transition-all"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.64 1.64 0 1 0-.01-3.28 1.64 1.64 0 0 0 .01 3.28M7.86 18.5V10.13H5.07V18.5h2.79z" />
+                </svg>
+              </a>
+
+              <a
+                href="https://medium.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Medium"
+                className="w-7 h-7 rounded-full flex items-center justify-center text-[#A9C0C7] hover:text-white hover:bg-[#14323A] transition-all"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/>
+                </svg>
+              </a>
+            </div>
+
+            <span className="font-normal text-[#A9C0C7]">
+              © 2026 LMS. All rights reserved.
+            </span>
+          </div>
+        </footer>
+      );
+    }
+
+    function App() {
+      return (
+        <div className="min-h-screen bg-[#07181E] text-white flex flex-col justify-between relative overflow-x-hidden selection:bg-[#4DE2BD] selection:text-[#07181E]">
+          <div className="absolute top-0 right-0 w-[700px] h-[600px] bg-[#143e39]/20 rounded-full blur-3xl pointer-events-none z-0" />
+          <div className="absolute top-1/3 left-1/4 w-[500px] h-[450px] bg-[#0e2c2b]/15 rounded-full blur-3xl pointer-events-none z-0" />
+
+          <div className="relative z-10 flex flex-col justify-between min-h-screen">
+            <Navbar />
+            <main className="flex-grow flex flex-col justify-center">
+              <Hero />
+              <Features />
+            </main>
+            <Footer />
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
